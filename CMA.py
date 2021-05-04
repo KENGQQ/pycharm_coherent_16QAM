@@ -1017,7 +1017,10 @@ class CMA_single:
         self.rx_x_single = np.array(rx_x)
         self.rx_y_single = np.array(rx_y)
         self.datalength = len(rx_x)
-        self.stepsizelist = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 6.409e-6, 1e-6, 1e-7]
+        #                      0    1      2    3     4        5      6        7        8
+        self.stepsizelist = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 6.409e-6, 1e-6, 2.025e-6 , 8e-7 \
+        #      9    10    11    12      13
+            , 1e-7, 1e-8, 1e9, 1e-10, 5e-13, 1e-14, 1e-25]
         self.overhead = 1
         self.cmataps = taps
         self.center = int((self.cmataps - 1) / 2)
@@ -1384,6 +1387,78 @@ class CMA_single:
         endtime = datetime.datetime.now()
         print(endtime - starttime)
 
+    def qam_4_side_RD(self, stage = 1):  # A FAMILY OF ALGORITHMS FOR BLIND EQUALIZATION OF QAM SIGNALS
+        starttime = datetime.datetime.now()
+        self.type = 'single_side_RD_polarization'
+        self.costfunx = np.zeros((1, self.iterator), dtype="complex_")
+        self.costfuny = np.zeros((1, self.iterator), dtype="complex_")
+        inputrx = self.rx_x_single
+        inputry = self.rx_y_single
+        hxx = np.zeros(self.cmataps, dtype="complex_")
+        hyy = np.zeros(self.cmataps, dtype="complex_")
+        hxx[self.center] = 1
+        hyy[self.center] = 1
+        exout = np.zeros(self.datalength, dtype="complex_")
+        eyout = np.zeros(self.datalength, dtype="complex_")
+
+        # errx = np.zeros(self.datalength, dtype="complex_")
+        cost_x = np.zeros(self.datalength, dtype="complex_")
+        cost_y = np.zeros(self.datalength, dtype="complex_")
+
+
+        if stage == 3:
+            radius = [2 ** 0.5, 10 ** 0.5, 18 ** 0.5, 26 ** 0.5, 34 ** 0.5, 50 ** 0.5, 58 ** 0.5, 74 ** 0.5, 98 ** 0.5]
+        elif stage == 2:
+            radius = [10 ** 0.5, 50 ** 0.5, 74 ** 0.5]
+        elif stage == 1:
+            radius = [10 ** 0.5]
+
+        HardDecision_X = np.zeros(len(radius))
+        HardDecision_Y = np.zeros(len(radius))
+
+        for it in range(self.iterator):
+            for indx in range(self.center, self.datalength - self.center):
+                exout[indx] = np.matmul(hxx, inputrx[indx - self.center:indx + self.center + 1])
+                eyout[indx] = np.matmul(hyy, inputry[indx - self.center:indx + self.center + 1])
+
+                if np.isnan(exout[indx]) or np.isnan(eyout[indx]):
+                    raise Exception("CMA Equaliser didn't converge at iterator {}".format(it))
+
+                for i in range(len(radius)):
+                    HardDecision_X[i] = radius[i] - np.abs(exout[indx])
+                    HardDecision_Y[i] = radius[i] - np.abs(eyout[indx])
+
+                errx = (radius[np.argmin(abs(HardDecision_X))] ** 2 - np.abs(exout[indx]) ** 2) * (exout[indx])
+                erry = (radius[np.argmin(abs(HardDecision_Y))] ** 2 - np.abs(eyout[indx]) ** 2) * (eyout[indx])
+
+                hxx = hxx + self.stepsize_x * errx * np.conj(
+                    inputrx[indx - self.center:indx + self.center + 1])
+                hyy = hyy + self.stepsize_y * erry * np.conj(
+                    inputry[indx - self.center:indx + self.center + 1])
+
+                cost_x[indx] = (abs(exout[indx])) ** 2 - radius[np.argmin(abs(HardDecision_X))] ** 2
+                cost_y[indx] = (abs(eyout[indx])) ** 2 - radius[np.argmin(abs(HardDecision_Y))] ** 2
+
+            self.costfunx[0][it] = np.mean(cost_x) * -1
+            self.costfuny[0][it] = np.mean(cost_y) * -1
+
+            print('iteration = {}'.format(it))
+            print(self.costfunx[0][it])
+            print(self.costfuny[0][it])
+            print('-------')
+
+            if it >= 1:
+                if np.abs(self.costfunx[0][it] - self.costfunx[0][it - 1]) < (self.earlystop * 100):
+                    self.stepsize_x *= self.stepsizeadjust
+                    print('Stepsize_x adjust to {}'.format(self.stepsize_x))
+                if np.abs(self.costfuny[0][it] - self.costfuny[0][it - 1]) < (self.earlystop * 100):
+                    self.stepsize_y *= self.stepsizeadjust
+                    print('Stepsize_y adjust to {}'.format(self.stepsize_y))
+
+        self.rx_x_cma = exout
+        self.rx_y_cma = eyout
+        endtime = datetime.datetime.now()
+        print(endtime - starttime)
 
     def qam_4_side_real_m(self):
         starttime = datetime.datetime.now()
@@ -1439,6 +1514,7 @@ class CMA_single:
 
         endtime = datetime.datetime.now()
         print(endtime - starttime)
+
     def ConstModulusAlgorithm(self, rx, tap_numb, mu, PAM_order, iterate=50):
         starttime = datetime.datetime.now()
         self.type = 'egg'

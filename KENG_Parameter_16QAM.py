@@ -14,7 +14,7 @@ class Parameter:
             self.samplepersymbol = self.sampleRate / self.symbolRate
             self.resamplenumber = int(self.samplepersymbol * self.upsamplenum)
             self.datafolder = datafolder
-            time = 2000
+            time = 1000
             # self.RxXI = pd.read_table(self.datafolder + 'RxXI.txt', names=['RxXI'])['RxXI'].tolist()
             # self.RxXQ = pd.read_table(self.datafolder + 'RxXQ.txt', names=['RxXQ'])['RxXQ'].tolist()
             # self.RxYI = pd.read_table(self.datafolder + 'RxYI.txt', names=['RxYI'])['RxYI'].tolist()
@@ -32,7 +32,9 @@ class Parameter:
             # self.TxYI = np.mat(pd.read_table(self.datafolder + 'TxYI.txt', names=['TxYI'])['TxYI'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
             # self.TxYQ = np.mat(pd.read_table(self.datafolder + 'TxYQ.txt', names=['TxYQ'])['TxYQ'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
 
-            self.datafolder = r'data\KENG_optsim_py\\20210302_CD_EDC/'
+            self.datafolder = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
+            # self.datafolder = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM64_data/'
+            self.datafolder += '20210504_DATA_new/'
             self.LogTxXI1=pd.read_table(self.datafolder+'LogTxXI1.txt',names=['L1'])['L1'].tolist()
             self.LogTxXI2=pd.read_table(self.datafolder+'LogTxXI2.txt',names=['L1'])['L1'].tolist()
             self.LogTxXQ1=pd.read_table(self.datafolder+'LogTxXQ1.txt',names=['L1'])['L1'].tolist()

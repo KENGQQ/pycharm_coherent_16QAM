@@ -32,6 +32,14 @@ def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0):
             color='#F58518'
         )
     ))
+    fig.update_yaxes(range=[-4, 4])
+    fig.update_layout(
+        yaxis=dict(
+            tickmode='array',
+            tickvals=[-3, -1, 1, 3],
+        )
+    )
+
     fig.add_trace(go.Histogram(
         x=x,
         yaxis='y2',
@@ -39,6 +47,14 @@ def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0):
             color='#F58518'
         )
     ))
+    fig.update_xaxes(range=[-4, 4])
+    fig.update_layout(
+        xaxis=dict(
+            tickmode='array',
+            tickvals=[-3, -1, 1, 3],
+        )
+    )
+
     if SNR != 0:
         fig.add_annotation(
             x=0,
