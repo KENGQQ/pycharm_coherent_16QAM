@@ -26,9 +26,9 @@ from KENG_16QAM_LogicTx import *
 from Equalizer import *
 from Phaserecovery import *
 
-address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
-# address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM64_data/'
-folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm/'
+# address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
+address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
+folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_PMD170/'
 address += folder
 
 Imageaddress = address + 'image'
@@ -85,9 +85,9 @@ Tx_Signal_Y = TxYI + 1j * TxYQ
 # TxYQ = downsample_Tx.return_value(Tx_YQ[down_num:])
 # Tx_Signal_X = TxXI + 1j * TxXQ
 # Tx_Signal_Y = TxYI + 1j * TxYQ
-Histogram2D('Tx_X_normalized', Tx_Signal_X, Imageaddress)
+# Histogram2D('Tx_X_normalized', Tx_Signal_X, Imageaddress)
 
-eyestart, eyeend = 3,4
+eyestart, eyeend = 0, 32
 for eyepos in range(eyestart, eyeend, 1):
     down_num = eyepos
 
@@ -108,7 +108,7 @@ for eyepos in range(eyestart, eyeend, 1):
     # RxXI ,RxXQ=DataNormalize(RxXI ,RxXQ, parameter.pamorder)
     # RxYI ,RxYQ=DataNormalize(RxYI ,RxYQ, parameter.pamorder)
 
-    Histogram2D('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
+    # Histogram2D('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
     # Histogram2D('Rx_Y_origin_{}'.format(eyepos), Rx_Signal_Y, Imageaddress)
     #########IQimba################
     # Rx_Signal_X = np.reshape(Rx_Signal_X,(1,-1))
@@ -117,7 +117,7 @@ for eyepos in range(eyestart, eyeend, 1):
     # Rx_Y_iqimba = IQimbaCompensator(Rx_Signal_Y, 1e-4)
     # Histogram2D("IQimba", Rx_X_iqimba[0])
     ##########IQimba################
-    tap_start, tap_end = 61,63
+    tap_start, tap_end = 51, 67
     for taps in range(tap_start, tap_end, 2):
         print("eye : {} ,tap : {}".format(eyepos,taps))
         # Rx_Signal_X_mat = sio.loadmat('RxX_mat.mat')
@@ -127,7 +127,7 @@ for eyepos in range(eyestart, eyeend, 1):
         # Rx_Signal_Y_mat = Rx_Signal_Y_mat['rxSym']
         # Rx_Signal_Y = np.reshape(Rx_Signal_Y_mat, -1)
 
-        cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=taps, iter=50, mean=0)
+        cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=taps, iter=40, mean=0)
         # aa = cma.ConstModulusAlgorithm(Rx_Signal_X , taps, 1e-6,4 , 10)
 
         # cma.qam_4_butter_real()
@@ -140,7 +140,7 @@ for eyepos in range(eyestart, eyeend, 1):
         # cma.MCMA_MDD_()
         # cma.qam_4_butter_conj_shift()
         # cma.qam_4_side_conj_SBD_polarization()
-        cma.qam_4_side_RD(stage=1)
+        cma.qam_4_side_RD_PMD(stage=1)
         Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
         Rx_Y_CMA_stage1 = cma.rx_y_cma[cma.rx_y_cma != 0]
         Histogram2D('CMA_X_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
@@ -152,17 +152,17 @@ for eyepos in range(eyestart, eyeend, 1):
 
         # Rx_X_CMA, Rx_Y_CMA = Downsample(cma.rx_x_cma, n, cma.center), Downsample(cma.rx_y_cma, n, cma.center)
 
-        cma = CMA_single(Rx_X_CMA_stage1, Rx_Y_CMA_stage1, taps=5, iter=20, mean=0)
-        cma.stepsize_xy = cma.stepsizelist[13]
-        cma.qam_4_side_RD(stage=2)
-        Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
-        Rx_Y_CMA_stage2 = cma.rx_y_cma[cma.rx_y_cma != 0]
-        Histogram2D('CMA_X_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-                    Rx_X_CMA_stage2, Imageaddress)
-        Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-                    Rx_Y_CMA_stage2, Imageaddress)
-        Rx_X_CMA = Rx_X_CMA_stage2
-        Rx_Y_CMA = Rx_Y_CMA_stage2
+        # cma = CMA_single(Rx_X_CMA_stage1, Rx_Y_CMA_stage1, taps=5, iter=20, mean=0)
+        # cma.stepsize_xy = cma.stepsizelist[13]
+        # cma.qam_4_side_RD(stage=2)
+        # Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
+        # Rx_Y_CMA_stage2 = cma.rx_y_cma[cma.rx_y_cma != 0]
+        # Histogram2D('CMA_X_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+        #             Rx_X_CMA_stage2, Imageaddress)
+        # Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+        #             Rx_Y_CMA_stage2, Imageaddress)
+        # Rx_X_CMA = Rx_X_CMA_stage2
+        # Rx_Y_CMA = Rx_Y_CMA_stage2
 
         CMA_cost_X = np.round(cma.costfunx[0][-1], 5)
         CMA_cost_Y = np.round(cma.costfuny[0][-1], 5)
@@ -238,13 +238,12 @@ for eyepos in range(eyestart, eyeend, 1):
         YSNR[eyepos], YEVM[eyepos] = SNR_Y, EVM_Y
         Histogram2D('KENG_Y_beforeVol', RxY_corr, Imageaddress, SNR_Y, EVM_Y)
 
+        print('----------------write excel----------------')
+        parameter_record = [eyepos, str([cma.mean, cma.type, cma.overhead * 100, cma.cmataps, cma.stepsize, cma.iterator, cma.earlystop, cma.stepsizeadjust]), \
+                str([CMA_cost_X, CMA_cost_Y]), PLL_BW, str([1.55, 3.2]), \
+                str([(XIshift, XQshift), (XI_corr, XQ_corr)]), str([SNR_X, EVM_X, bercount_X]), str([(YIshift, YQshift), (YI_corr, YQ_corr)]), str([SNR_Y, EVM_Y, bercount_Y])]
 
-        # print('----------------write excel----------------')
-        # parameter_record = [eyepos, str(
-        #     [cma.mean, cma.type, cma.overhead*100, cma.cmataps, cma.stepsize, cma.iterator, cma.earlystop, cma.stepsizeadjust]),str([CMA_cost_X , CMA_cost_Y]),
-        #                     PLL_BW, str([(XIshift,XQshift) , (XI_corr ,XQ_corr )]),str([SNR_X ,EVM_X ,bercount_X]), str([(YIshift,YQshift) , (YI_corr ,YQ_corr )]),str([SNR_Y ,EVM_Y ,bercount_Y])]
-        #
-        # write_excel(address, parameter_record)
+        write_excel(address, parameter_record)
 
 
     # PN_Rx=ph.QAM_4(phasenoise_Rx,c1_radius=1.8,c2_radius=3.2)
