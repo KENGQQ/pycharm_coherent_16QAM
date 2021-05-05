@@ -1027,7 +1027,7 @@ class CMA_single:
         self.iterator = iter
         self.earlystop = 0.0001
         self.stepsizeadjust = 0.9
-        self.stepsize = self.stepsizelist[5]
+        self.stepsize = self.stepsizelist[6]
         self.stepsize_x = self.stepsize
         self.stepsize_y = self.stepsize
 
@@ -1460,9 +1460,9 @@ class CMA_single:
         endtime = datetime.datetime.now()
         print(endtime - starttime)
 
-    def qam_4_side_RD_PMD(self, stage = 1):  # A FAMILY OF ALGORITHMS FOR BLIND EQUALIZATION OF QAM SIGNALS
+    def qam_4_butter_RD(self, stage = 1):  # A FAMILY OF ALGORITHMS FOR BLIND EQUALIZATION OF QAM SIGNALS
         starttime = datetime.datetime.now()
-        self.type = 'single_side_RD_PMD'
+        self.type = 'butter_RD'
         self.costfunx = np.zeros((1, self.iterator), dtype="complex_")
         self.costfuny = np.zeros((1, self.iterator), dtype="complex_")
         inputrx = self.rx_x_single

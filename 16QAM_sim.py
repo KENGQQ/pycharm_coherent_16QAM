@@ -28,10 +28,10 @@ from Phaserecovery import *
 
 # address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
 address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
-folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_fiber/'
+folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_fiber_PDM_Bire_Rec/'
 address += folder
 
-isplot = 0
+isplot = 1
 Imageaddress = address + 'image'
 parameter = Parameter(address, simulation=True)
 # open_excel(address)
@@ -118,7 +118,7 @@ for eyepos in range(eyestart, eyeend, 1):
     # Rx_Y_iqimba = IQimbaCompensator(Rx_Signal_Y, 1e-4)
     # Histogram2D("IQimba", Rx_X_iqimba[0])
     ##########IQimba################
-    tap_start, tap_end = 61,63
+    tap_start, tap_end = 71, 73
     for taps in range(tap_start, tap_end, 2):
         print("eye : {} ,tap : {}".format(eyepos,taps))
         # Rx_Signal_X_mat = sio.loadmat('RxX_mat.mat')
@@ -128,7 +128,7 @@ for eyepos in range(eyestart, eyeend, 1):
         # Rx_Signal_Y_mat = Rx_Signal_Y_mat['rxSym']
         # Rx_Signal_Y = np.reshape(Rx_Signal_Y_mat, -1)
 
-        cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=taps, iter=40, mean=0)
+        cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=taps, iter=30, mean=0)
         # aa = cma.ConstModulusAlgorithm(Rx_Signal_X , taps, 1e-6,4 , 10)
 
         # cma.qam_4_butter_real()
@@ -141,6 +141,8 @@ for eyepos in range(eyestart, eyeend, 1):
         # cma.MCMA_MDD_()
         # cma.qam_4_butter_conj_shift()
         # cma.qam_4_side_conj_SBD_polarization()
+
+        # cma.qam_4_butter_RD(stage=1)
         cma.qam_4_side_RD(stage=1)
         Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
         Rx_Y_CMA_stage1 = cma.rx_y_cma[cma.rx_y_cma != 0]
@@ -154,18 +156,19 @@ for eyepos in range(eyestart, eyeend, 1):
 
         # Rx_X_CMA, Rx_Y_CMA = Downsample(cma.rx_x_cma, n, cma.center), Downsample(cma.rx_y_cma, n, cma.center)
 
-        # cma = CMA_single(Rx_X_CMA_stage1, Rx_Y_CMA_stage1, taps=5, iter=20, mean=0)
-        # cma.stepsize_xy = cma.stepsizelist[13]
+        cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=taps, iter=20, mean=0)
+        cma.stepsize_x, cma.stepsize_y = cma.stepsizelist[7], cma.stepsizelist[7]
+        cma.qam_4_butter_RD(stage=2)
         # cma.qam_4_side_RD(stage=2)
-        # Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
-        # Rx_Y_CMA_stage2 = cma.rx_y_cma[cma.rx_y_cma != 0]
-        # if isplot == True:
-            # Histogram2D('CMA_X_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-            #             Rx_X_CMA_stage2, Imageaddress)
-            # Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-            #             Rx_Y_CMA_stage2, Imageaddress)
-        # Rx_X_CMA = Rx_X_CMA_stage2
-        # Rx_Y_CMA = Rx_Y_CMA_stage2
+        Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
+        Rx_Y_CMA_stage2 = cma.rx_y_cma[cma.rx_y_cma != 0]
+        if isplot == True:
+            Histogram2D('CMA_X_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+                        Rx_X_CMA_stage2, Imageaddress)
+            Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+                        Rx_Y_CMA_stage2, Imageaddress)
+        Rx_X_CMA = Rx_X_CMA_stage2
+        Rx_Y_CMA = Rx_Y_CMA_stage2
 
         CMA_cost_X = np.round(cma.costfunx[0][-1], 5)
         CMA_cost_Y = np.round(cma.costfuny[0][-1], 5)
@@ -244,7 +247,8 @@ for eyepos in range(eyestart, eyeend, 1):
         print('----------------write excel----------------')
         parameter_record = [eyepos, str([cma.mean, cma.type, cma.overhead * 100, cma.cmataps, cma.stepsize, cma.iterator, cma.earlystop, cma.stepsizeadjust]), \
                 str([CMA_cost_X, CMA_cost_Y]), PLL_BW, str([1.55, 3.2]), \
-                str([(XIshift, XQshift), (XI_corr, XQ_corr)]), str([SNR_X, EVM_X, bercount_X]), str([(YIshift, YQshift), (YI_corr, YQ_corr)]), str([SNR_Y, EVM_Y, bercount_Y])]
+                str([(XIshift, XQshift), (XI_corr, XQ_corr)]), str([SNR_X, EVM_X, bercount_X]), \
+                str([(YIshift, YQshift), (YI_corr, YQ_corr)]), str([SNR_Y, EVM_Y, bercount_Y])]
 
         write_excel(address, parameter_record)
 
