@@ -28,9 +28,10 @@ from Phaserecovery import *
 
 # address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
 address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
-folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_PMD170/'
+folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_fiber/'
 address += folder
 
+isplot = 0
 Imageaddress = address + 'image'
 parameter = Parameter(address, simulation=True)
 # open_excel(address)
@@ -87,7 +88,7 @@ Tx_Signal_Y = TxYI + 1j * TxYQ
 # Tx_Signal_Y = TxYI + 1j * TxYQ
 # Histogram2D('Tx_X_normalized', Tx_Signal_X, Imageaddress)
 
-eyestart, eyeend = 0, 32
+eyestart, eyeend = 3, 4
 for eyepos in range(eyestart, eyeend, 1):
     down_num = eyepos
 
@@ -117,7 +118,7 @@ for eyepos in range(eyestart, eyeend, 1):
     # Rx_Y_iqimba = IQimbaCompensator(Rx_Signal_Y, 1e-4)
     # Histogram2D("IQimba", Rx_X_iqimba[0])
     ##########IQimba################
-    tap_start, tap_end = 51, 67
+    tap_start, tap_end = 61,63
     for taps in range(tap_start, tap_end, 2):
         print("eye : {} ,tap : {}".format(eyepos,taps))
         # Rx_Signal_X_mat = sio.loadmat('RxX_mat.mat')
@@ -140,13 +141,14 @@ for eyepos in range(eyestart, eyeend, 1):
         # cma.MCMA_MDD_()
         # cma.qam_4_butter_conj_shift()
         # cma.qam_4_side_conj_SBD_polarization()
-        cma.qam_4_side_RD_PMD(stage=1)
+        cma.qam_4_side_RD(stage=1)
         Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
         Rx_Y_CMA_stage1 = cma.rx_y_cma[cma.rx_y_cma != 0]
-        Histogram2D('CMA_X_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-                    Rx_X_CMA_stage1, Imageaddress)
-        Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-                    Rx_Y_CMA_stage1, Imageaddress)
+        if isplot == True:
+            Histogram2D('CMA_X_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+                        Rx_X_CMA_stage1, Imageaddress)
+            Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+                        Rx_Y_CMA_stage1, Imageaddress)
         Rx_X_CMA = Rx_X_CMA_stage1
         Rx_Y_CMA = Rx_Y_CMA_stage1
 
@@ -157,10 +159,11 @@ for eyepos in range(eyestart, eyeend, 1):
         # cma.qam_4_side_RD(stage=2)
         # Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
         # Rx_Y_CMA_stage2 = cma.rx_y_cma[cma.rx_y_cma != 0]
-        # Histogram2D('CMA_X_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-        #             Rx_X_CMA_stage2, Imageaddress)
-        # Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-        #             Rx_Y_CMA_stage2, Imageaddress)
+        # if isplot == True:
+            # Histogram2D('CMA_X_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+            #             Rx_X_CMA_stage2, Imageaddress)
+            # Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+            #             Rx_Y_CMA_stage2, Imageaddress)
         # Rx_X_CMA = Rx_X_CMA_stage2
         # Rx_Y_CMA = Rx_Y_CMA_stage2
 
@@ -174,20 +177,20 @@ for eyepos in range(eyestart, eyeend, 1):
         print('X part')
         ph = KENG_phaserecovery()
         FOcompen_X = ph.FreqOffsetComp(Rx_X_CMA)
-        Histogram2D('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
+        if isplot == True: Histogram2D('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
 
         DDPLL_RxX = ph.PLL(FOcompen_X)
         PLL_BW = ph.bandwidth
-        Histogram2D('KENG_FreqOffset_X', DDPLL_RxX[0, :], Imageaddress)
+        if isplot == True: Histogram2D('KENG_FreqOffset_X', DDPLL_RxX[0, :], Imageaddress)
 
         phasenoise_RxX = np.reshape(DDPLL_RxX, -1)
         PN_RxX = ph.QAM_6(phasenoise_RxX, c1_radius=1.55, c2_radius=3.2)
         PN_RxX = PN_RxX[PN_RxX != 0]
-        Histogram2D('KENG_PhaseNoise_X', PN_RxX, Imageaddress)
+        if isplot == True: Histogram2D('KENG_PhaseNoise_X', PN_RxX, Imageaddress)
 
         Normal_ph_RxX_real, Normal_ph_RxX_imag = DataNormalize(np.real(PN_RxX), np.imag(PN_RxX), parameter.pamorder)
         Normal_ph_RxX = Normal_ph_RxX_real + 1j * Normal_ph_RxX_imag
-        # Histogram2D('KENG_PLL_Normalized_X', Normal_ph_RxX, Imageaddress)
+        # if isplot == True: Histogram2D('KENG_PLL_Normalized_X', Normal_ph_RxX, Imageaddress)
 
         Correlation = KENG_corr(window_length=window_length)
         TxX_real, RxX_real, p = Correlation.corr(TxXI, np.real(Normal_ph_RxX[0:correlation_length]), 13); XIshift = Correlation.shift; XI_corr = Correlation.corr;
@@ -195,34 +198,34 @@ for eyepos in range(eyestart, eyeend, 1):
         TxX_imag, RxX_imag, p = Correlation.corr(TxXQ, np.imag(Normal_ph_RxX[0:correlation_length]), 13); XQshift = Correlation.shift; XQ_corr = Correlation.corr;
         RxX_corr = RxX_real[0:final_length] + 1j * RxX_imag[0:final_length]
         TxX_corr = TxX_real[0:final_length] + 1j * TxX_imag[0:final_length]
-        # Histogram2D('KENG_Corr_X', RxX_corr, Imageaddress)
+        # if isplot == True: Histogram2D('KENG_Corr_X', RxX_corr, Imageaddress)
 
         SNR_X, EVM_X = SNR(RxX_corr, TxX_corr)
         bercount_X = BERcount(np.array(TxX_corr), np.array(RxX_corr), parameter.pamorder)
         print('BER_X = {} \nSNR_X = {} \nEVM_X = {}'.format(bercount_X, SNR_X, EVM_X))
         XSNR[eyepos] ,XEVM[eyepos] = SNR_X, EVM_X
-        Histogram2D('KENG_X_beforeVol', RxX_corr, Imageaddress, SNR_X, EVM_X)
+        if isplot == True: Histogram2D('KENG_X_beforeVol', RxX_corr, Imageaddress, SNR_X, EVM_X)
 
         # --------------------------- Y PART------------------------
         print('================================')
         print('Y part')
         ph = KENG_phaserecovery()
         FOcompen_Y = ph.FreqOffsetComp(Rx_Y_CMA)
-        Histogram2D('KENG_FOcompensate_Y', FOcompen_Y, Imageaddress)
+        if isplot == True: Histogram2D('KENG_FOcompensate_Y', FOcompen_Y, Imageaddress)
 
         DDPLL_RxY = ph.PLL(FOcompen_Y)
         PLL_BW = ph.bandwidth
-        Histogram2D('KENG_FreqOffset_Y', DDPLL_RxY[0, :], Imageaddress)
+        if isplot == True: Histogram2D('KENG_FreqOffset_Y', DDPLL_RxY[0, :], Imageaddress)
 
         phasenoise_RxY = np.reshape(DDPLL_RxY, -1)
         PN_RxY = ph.QAM_6(phasenoise_RxY, c1_radius=1.55, c2_radius=3.2)
         # PN_RxY = ph.QAM_6(phasenoise_RxY, c1_radius=1.85, c2_radius=3.8)
         PN_RxY = PN_RxY[PN_RxY != 0]
-        Histogram2D('KENG_PhaseNoise_Y', PN_RxY, Imageaddress)
+        if isplot == True: Histogram2D('KENG_PhaseNoise_Y', PN_RxY, Imageaddress)
 
         Normal_ph_RxY_real, Normal_ph_RxY_imag = DataNormalize(np.real(PN_RxY), np.imag(PN_RxY), parameter.pamorder)
         Normal_ph_RxY = Normal_ph_RxY_real + 1j * Normal_ph_RxY_imag
-        # Histogram2D('KENG_PLL_Normalized_Y', Normal_ph_RxY, Imageaddress)
+        # if isplot == True: Histogram2D('KENG_PLL_Normalized_Y', Normal_ph_RxY, Imageaddress)
 
         Correlation = KENG_corr(window_length=window_length)
         TxY_real, RxY_real, p = Correlation.corr(TxYI, np.real(Normal_ph_RxY[0:correlation_length]), 13); YIshift = Correlation.shift; YI_corr = Correlation.corr;
@@ -230,13 +233,13 @@ for eyepos in range(eyestart, eyeend, 1):
         TxY_imag, RxY_imag, p = Correlation.corr(TxYQ, np.imag(Normal_ph_RxY[0:correlation_length]), 13); YQshift = Correlation.shift; YQ_corr = Correlation.corr;
         RxY_corr = RxY_real[0:final_length] + 1j * RxY_imag[0:final_length]
         TxY_corr = TxY_real[0:final_length] + 1j * TxY_imag[0:final_length]
-        # Histogram2D('KENG_Corr_Y', RxY_corr, Imageaddress)
+        # if isplot == True: Histogram2D('KENG_Corr_Y', RxY_corr, Imageaddress)
 
         SNR_Y, EVM_Y = SNR(RxY_corr, TxY_corr)
         bercount_Y = BERcount(np.array(TxY_corr), np.array(RxY_corr), parameter.pamorder)
         print('BER_Y = {} \nSNR_Y = {} \nEVM_Y = {}'.format(bercount_Y, SNR_Y, EVM_Y))
         YSNR[eyepos], YEVM[eyepos] = SNR_Y, EVM_Y
-        Histogram2D('KENG_Y_beforeVol', RxY_corr, Imageaddress, SNR_Y, EVM_Y)
+        if isplot == True: Histogram2D('KENG_Y_beforeVol', RxY_corr, Imageaddress, SNR_Y, EVM_Y)
 
         print('----------------write excel----------------')
         parameter_record = [eyepos, str([cma.mean, cma.type, cma.overhead * 100, cma.cmataps, cma.stepsize, cma.iterator, cma.earlystop, cma.stepsizeadjust]), \
