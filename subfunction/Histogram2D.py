@@ -32,7 +32,7 @@ def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0):
             color='#F58518'
         )
     ))
-    # fig.update_yaxes(range=[-4, 4])
+    fig.update_yaxes(range=[-4, 4])
     fig.update_layout(
         yaxis=dict(
             tickmode='array',
@@ -47,7 +47,7 @@ def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0):
             color='#F58518'
         )
     ))
-    # fig.update_xaxes(range=[-4, 4])
+    fig.update_xaxes(range=[-4, 4])
     fig.update_layout(
         xaxis=dict(
             tickmode='array',
