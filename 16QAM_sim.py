@@ -27,20 +27,20 @@ from Equalizer import *
 from Phaserecovery import *
 
 address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
-# address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
-folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm/'
+address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
+folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-0000_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_fiber_PDM_Bire/'
 address += folder
 
 Imageaddress = address + 'image2'
 parameter = Parameter(address, simulation=True)
-# open_excel(address)
+open_excel(address)
 ##################### control
-isplot = 1
-iswrite = 0
+isplot = 0
+iswrite = 1
 xpart, ypart = 1, 1
-eyestart, eyeend = 2, 3
-tap_start, tap_end = 61, 63
-cma_stage= [1, 2]; cma_iter = [20,1]
+eyestart, eyeend = 0,32
+tap_start, tap_end = 7, 21
+cma_stage= [1, 2]; cma_iter = [23,1]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -148,8 +148,8 @@ for eyepos in range(eyestart, eyeend, 1):
         cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=tap_1, iter=cma_iter[0], mean=0)
         cma.stepsize_x = cma.stepsizelist[5]; CMAstage1_stepsize_x = cma.stepsize_x;
         cma.stepsize_y = cma.stepsizelist[5]; CMAstage1_stepsize_y = cma.stepsize_y;
-        # cma.qam_4_butter_RD(stage=cma_stage[0])
-        cma.qam_4_side_RD(stage=cma_stage[0])
+        cma.qam_4_butter_RD(stage=cma_stage[0])
+        # cma.qam_4_side_RD(stage=cma_stage[0])
         Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
         Rx_Y_CMA_stage1 = cma.rx_y_cma[cma.rx_y_cma != 0]
         CMAstage1_tap, CMAstage1_iteration, CMA_cost_X1, CMA_cost_Y1 = tap_1, cma_iter[0], np.round(cma.costfunx[0][-1], 4), np.round(cma.costfuny[0][-1], 4)
@@ -198,9 +198,9 @@ for eyepos in range(eyestart, eyeend, 1):
             # if isplot == True: Histogram2D('KENG_PLL_Normalized_X', Normal_ph_RxX, Imageaddress)
 
             Correlation = KENG_corr(window_length=window_length)
-            TxX_real, RxX_real, p = Correlation.corr(TxYQ, np.real(Normal_ph_RxX[0:correlation_length]), 13); XIshift = Correlation.shift; XI_corr = Correlation.corr;
+            TxX_real, RxX_real, p = Correlation.corr(TxXI, np.real(Normal_ph_RxX[0:correlation_length]), 13); XIshift = Correlation.shift; XI_corr = Correlation.corr;
             Correlation = KENG_corr(window_length=window_length)
-            TxX_imag, RxX_imag, p = Correlation.corr(TxYI, np.imag(Normal_ph_RxX[0:correlation_length]), 13); XQshift = Correlation.shift; XQ_corr = Correlation.corr;
+            TxX_imag, RxX_imag, p = Correlation.corr(TxXQ, np.imag(Normal_ph_RxX[0:correlation_length]), 13); XQshift = Correlation.shift; XQ_corr = Correlation.corr;
             RxX_corr = RxX_real[0:final_length] + 1j * RxX_imag[0:final_length]
             TxX_corr = TxX_real[0:final_length] + 1j * TxX_imag[0:final_length]
             # if isplot == True: Histogram2D('KENG_Corr_X', RxX_corr, Imageaddress)
@@ -234,9 +234,9 @@ for eyepos in range(eyestart, eyeend, 1):
             # if isplot == True: Histogram2D('KENG_PLL_Normalized_Y', Normal_ph_RxY, Imageaddress)
 
             Correlation = KENG_corr(window_length=window_length)
-            TxY_real, RxY_real, p = Correlation.corr(TxXI, np.real(Normal_ph_RxY[0:correlation_length]), 13); YIshift = Correlation.shift; YI_corr = Correlation.corr;
+            TxY_real, RxY_real, p = Correlation.corr(TxYI, np.real(Normal_ph_RxY[0:correlation_length]), 13); YIshift = Correlation.shift; YI_corr = Correlation.corr;
             Correlation = KENG_corr(window_length=window_length)
-            TxY_imag, RxY_imag, p = Correlation.corr(TxXQ, np.imag(Normal_ph_RxY[0:correlation_length]), 13); YQshift = Correlation.shift; YQ_corr = Correlation.corr;
+            TxY_imag, RxY_imag, p = Correlation.corr(TxYQ, np.imag(Normal_ph_RxY[0:correlation_length]), 13); YQshift = Correlation.shift; YQ_corr = Correlation.corr;
             RxY_corr = RxY_real[0:final_length] + 1j * RxY_imag[0:final_length]
             TxY_corr = TxY_real[0:final_length] + 1j * TxY_imag[0:final_length]
             # if isplot == True: Histogram2D('KENG_Corr_Y', RxY_corr, Imageaddress)
@@ -256,7 +256,7 @@ for eyepos in range(eyestart, eyeend, 1):
                                 str([CMAstage2_tap, CMAstage2_stepsize_x, CMAstage2_stepsize_x, CMAstage2_iteration,
                                      [CMA_cost_X2, CMA_cost_Y2]]), \
                                 str([0, 0, 0, 0,[0, 0]]), \
-                                PLL_BW, str([1.55, 3.1, 3.47, 7.94]), \
+                                PLL_BW, str([1.55, 3.2]), \
                                 str([(XIshift, XQshift), (XI_corr, XQ_corr)]), str([SNR_X, EVM_X, bercount_X]), \
                                 str([(YIshift, YQshift), (YI_corr, YQ_corr)]), str([SNR_Y, EVM_Y, bercount_Y])]
 

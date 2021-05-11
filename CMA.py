@@ -1390,8 +1390,8 @@ class CMA_single:
     def qam_4_side_RD(self, stage = 1):  # A FAMILY OF ALGORITHMS FOR BLIND EQUALIZATION OF QAM SIGNALS
         starttime = datetime.datetime.now()
         self.type = 'single_side_RD'
-        self.costfunx = np.zeros((1, self.iterator), dtype="complex_")
-        self.costfuny = np.zeros((1, self.iterator), dtype="complex_")
+        self.costfunx = np.zeros((1, self.iterator))
+        self.costfuny = np.zeros((1, self.iterator))
         inputrx = self.rx_x_single
         inputry = self.rx_y_single
         hxx = np.zeros(self.cmataps, dtype="complex_")
@@ -1402,8 +1402,8 @@ class CMA_single:
         eyout = np.zeros(self.datalength, dtype="complex_")
 
         # errx = np.zeros(self.datalength, dtype="complex_")
-        cost_x = np.zeros(self.datalength, dtype="complex_")
-        cost_y = np.zeros(self.datalength, dtype="complex_")
+        cost_x = np.zeros(self.datalength)
+        cost_y = np.zeros(self.datalength)
 
 
         if stage == 3:
@@ -1463,8 +1463,8 @@ class CMA_single:
     def qam_4_butter_RD(self, stage = 1):  # A FAMILY OF ALGORITHMS FOR BLIND EQUALIZATION OF QAM SIGNALS
         starttime = datetime.datetime.now()
         self.type = 'butter_RD'
-        self.costfunx = np.zeros((1, self.iterator), dtype="complex_")
-        self.costfuny = np.zeros((1, self.iterator), dtype="complex_")
+        self.costfunx = np.zeros((1, self.iterator))
+        self.costfuny = np.zeros((1, self.iterator))
         inputrx = self.rx_x_single
         inputry = self.rx_y_single
         hxx = np.zeros(self.cmataps, dtype="complex_")
@@ -1477,8 +1477,8 @@ class CMA_single:
         eyout = np.zeros(self.datalength, dtype="complex_")
 
         # errx = np.zeros(self.datalength, dtype="complex_")
-        cost_x = np.zeros(self.datalength, dtype="complex_")
-        cost_y = np.zeros(self.datalength, dtype="complex_")
+        cost_x = np.zeros(self.datalength)
+        cost_y = np.zeros(self.datalength)
 
 
         if stage == 3:
