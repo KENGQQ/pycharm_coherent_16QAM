@@ -28,19 +28,19 @@ from Phaserecovery import *
 
 address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
 address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
-folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-0000_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_fiber_PDM_Bire/'
+folder = '20210511_DATA_test/000KLW_0GFO_50GBW_0dBLO_sample32_1000ns_CD-0000_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_nothing/'
 address += folder
 
-Imageaddress = address + 'image2'
+Imageaddress = address + 'image'
 parameter = Parameter(address, simulation=True)
 open_excel(address)
 ##################### control
-isplot = 0
+isplot = 1
 iswrite = 1
 xpart, ypart = 1, 1
-eyestart, eyeend = 0,32
-tap_start, tap_end = 7, 21
-cma_stage= [1, 2]; cma_iter = [23,1]
+eyestart, eyeend = 0, 32
+tap_start, tap_end = 21,23
+cma_stage= [1, 2]; cma_iter = [3,1]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -109,19 +109,21 @@ for eyepos in range(eyestart, eyeend, 1):
     down_num = eyepos
 
     n = 1
-    RxXI = signal.resample_poly(Rx_XI[down_num:], up=1, down=parameter.resamplenumber / n)
-    RxXQ = signal.resample_poly(Rx_XQ[down_num:], up=1, down=parameter.resamplenumber / n)
-    RxYI = signal.resample_poly(Rx_YI[down_num:], up=1, down=parameter.resamplenumber / n)
-    RxYQ = signal.resample_poly(Rx_YQ[down_num:], up=1, down=parameter.resamplenumber / n)
-    Rx_Signal_X = RxXI[:, 0] + 1j * RxXQ[:, 0]
-    Rx_Signal_Y = RxYI[:, 0] + 1j * RxYQ[:, 0]
+    # RxXI = signal.resample_poly(Rx_XI[down_num:], up=1, down=parameter.resamplenumber / n)
+    # RxXQ = signal.resample_poly(Rx_XQ[down_num:], up=1, down=parameter.resamplenumber / n)
+    # RxYI = signal.resample_poly(Rx_YI[down_num:], up=1, down=parameter.resamplenumber / n)
+    # RxYQ = signal.resample_poly(Rx_YQ[down_num:], up=1, down=parameter.resamplenumber / n)
+    # Rx_Signal_X = RxXI + 1j * RxXQ
+    # Rx_Signal_Y = RxYI + 1j * RxYQ
+    # Rx_Signal_X = RxXI[:, 0] + 1j * RxXQ[:, 0]
+    # Rx_Signal_Y = RxYI[:, 0] + 1j * RxYQ[:, 0]
 
-    # RxXI=downsample_Rx.return_value(Rx_XI[down_num:])
-    # RxXQ=downsample_Rx.return_value(Rx_XQ[down_num:])
-    # RxYI=downsample_Rx.return_value(Rx_YI[down_num:])
-    # RxYQ=downsample_Rx.return_value(Rx_YQ[down_num:])
-    # Rx_Signal_X=RxXI+1j*RxXQ
-    # Rx_Signal_Y=RxYI+1j*RxYQ
+    RxXI=downsample_Rx.return_value(Rx_XI[down_num:])
+    RxXQ=downsample_Rx.return_value(Rx_XQ[down_num:])
+    RxYI=downsample_Rx.return_value(Rx_YI[down_num:])
+    RxYQ=downsample_Rx.return_value(Rx_YQ[down_num:])
+    Rx_Signal_X = RxXI + 1j * RxXQ
+    Rx_Signal_Y = RxYI + 1j * RxYQ
     # RxXI ,RxXQ=DataNormalize(RxXI ,RxXQ, parameter.pamorder)
     # RxYI ,RxYQ=DataNormalize(RxYI ,RxYQ, parameter.pamorder)
 
@@ -146,8 +148,8 @@ for eyepos in range(eyestart, eyeend, 1):
         # Rx_Signal_Y = np.reshape(Rx_Signal_Y_mat, -1)
 
         cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=tap_1, iter=cma_iter[0], mean=0)
-        cma.stepsize_x = cma.stepsizelist[5]; CMAstage1_stepsize_x = cma.stepsize_x;
-        cma.stepsize_y = cma.stepsizelist[5]; CMAstage1_stepsize_y = cma.stepsize_y;
+        cma.stepsize_x = cma.stepsizelist[4]; CMAstage1_stepsize_x = cma.stepsize_x;
+        cma.stepsize_y = cma.stepsizelist[4]; CMAstage1_stepsize_y = cma.stepsize_y;
         cma.qam_4_butter_RD(stage=cma_stage[0])
         # cma.qam_4_side_RD(stage=cma_stage[0])
         Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
@@ -193,6 +195,7 @@ for eyepos in range(eyestart, eyeend, 1):
             PN_RxX = PN_RxX[PN_RxX != 0]
             if isplot == True: Histogram2D('KENG_PhaseNoise_X', PN_RxX, Imageaddress)
 
+            # PN_RxX = Rx_Signal_X
             Normal_ph_RxX_real, Normal_ph_RxX_imag = DataNormalize(np.real(PN_RxX), np.imag(PN_RxX), parameter.pamorder)
             Normal_ph_RxX = Normal_ph_RxX_real + 1j * Normal_ph_RxX_imag
             # if isplot == True: Histogram2D('KENG_PLL_Normalized_X', Normal_ph_RxX, Imageaddress)
@@ -229,6 +232,7 @@ for eyepos in range(eyestart, eyeend, 1):
             PN_RxY = PN_RxY[PN_RxY != 0]
             if isplot == True: Histogram2D('KENG_PhaseNoise_Y', PN_RxY, Imageaddress)
 
+            # PN_RxY = Rx_Signal_Y
             Normal_ph_RxY_real, Normal_ph_RxY_imag = DataNormalize(np.real(PN_RxY), np.imag(PN_RxY), parameter.pamorder)
             Normal_ph_RxY = Normal_ph_RxY_real + 1j * Normal_ph_RxY_imag
             # if isplot == True: Histogram2D('KENG_PLL_Normalized_Y', Normal_ph_RxY, Imageaddress)
@@ -250,7 +254,8 @@ for eyepos in range(eyestart, eyeend, 1):
         if iswrite == True:
             print('----------------write excel----------------')
             parameter_record = [eyepos,
-                                str([cma.mean, cma.type, cma.overhead, cma.earlystop, cma.stepsizeadjust]), \
+                                str([0]), \
+                                # str([cma.mean, cma.type, cma.overhead, cma.earlystop, cma.stepsizeadjust]), \
                                 str([CMAstage1_tap, CMAstage1_stepsize_x, CMAstage1_stepsize_x, CMAstage1_iteration,
                                      [CMA_cost_X1, CMA_cost_Y1]]), \
                                 str([CMAstage2_tap, CMAstage2_stepsize_x, CMAstage2_stepsize_x, CMAstage2_iteration,
