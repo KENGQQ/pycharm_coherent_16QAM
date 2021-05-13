@@ -15,18 +15,18 @@ class Parameter:
             self.resamplenumber = int(self.samplepersymbol * self.upsamplenum)
             self.datafolder = datafolder
             time = 1000
-            self.RxXI = pd.read_table(self.datafolder + 'RxXI_m.txt', names=['RxXI'])['RxXI'].tolist()
-            self.RxXQ = pd.read_table(self.datafolder + 'RxXQ_m.txt', names=['RxXQ'])['RxXQ'].tolist()
-            self.RxYI = pd.read_table(self.datafolder + 'RxYI_m.txt', names=['RxYI'])['RxYI'].tolist()
-            self.RxYQ = pd.read_table(self.datafolder + 'RxYQ_m.txt', names=['RxYQ'])['RxYQ'].tolist()
+            # self.RxXI = pd.read_table(self.datafolder + 'RxXI_m.txt', names=['RxXI'])['RxXI'].tolist()
+            # self.RxXQ = pd.read_table(self.datafolder + 'RxXQ_m.txt', names=['RxXQ'])['RxXQ'].tolist()
+            # self.RxYI = pd.read_table(self.datafolder + 'RxYI_m.txt', names=['RxYI'])['RxYI'].tolist()
+            # self.RxYQ = pd.read_table(self.datafolder + 'RxYQ_m.txt', names=['RxYQ'])['RxYQ'].tolist()
             # self.TxXI = pd.read_table(self.datafolder + 'TxXI.txt', names=['TxXI'])['TxXI'].tolist()
             # self.TxXQ = pd.read_table(self.datafolder + 'TxXQ.txt', names=['TxXQ'])['TxXQ'].tolist()
             # self.TxYI = pd.read_table(self.datafolder + 'TxYI.txt', names=['TxYI'])['TxYI'].tolist()
             # self.TxYQ = pd.read_table(self.datafolder + 'TxYQ.txt', names=['TxYQ'])['TxYQ'].tolist()
-            # self.RxXI = np.mat(pd.read_table(self.datafolder + 'RxXI.txt', names=['RxXI'])['RxXI'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
-            # self.RxXQ = np.mat(pd.read_table(self.datafolder + 'RxXQ.txt', names=['RxXQ'])['RxXQ'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
-            # self.RxYI = np.mat(pd.read_table(self.datafolder + 'RxYI.txt', names=['RxYI'])['RxYI'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
-            # self.RxYQ = np.mat(pd.read_table(self.datafolder + 'RxYQ.txt', names=['RxYQ'])['RxYQ'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
+            self.RxXI = np.mat(pd.read_table(self.datafolder + 'RxXI.txt', names=['RxXI'])['RxXI'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
+            self.RxXQ = np.mat(pd.read_table(self.datafolder + 'RxXQ.txt', names=['RxXQ'])['RxXQ'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
+            self.RxYI = np.mat(pd.read_table(self.datafolder + 'RxYI.txt', names=['RxYI'])['RxYI'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
+            self.RxYQ = np.mat(pd.read_table(self.datafolder + 'RxYQ.txt', names=['RxYQ'])['RxYQ'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
             # self.TxXI = np.mat(pd.read_table(self.datafolder + 'TxXI.txt', names=['TxXI'])['TxXI'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
             # self.TxXQ = np.mat(pd.read_table(self.datafolder + 'TxXQ.txt', names=['TxXQ'])['TxXQ'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
             # self.TxYI = np.mat(pd.read_table(self.datafolder + 'TxYI.txt', names=['TxYI'])['TxYI'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]

@@ -1406,9 +1406,7 @@ class CMA_single:
         cost_y = np.zeros(self.datalength)
 
 
-        if stage == 3:
-            radius = [2 ** 0.5, 10 ** 0.5, 18 ** 0.5, 26 ** 0.5, 34 ** 0.5, 50 ** 0.5, 58 ** 0.5, 74 ** 0.5, 98 ** 0.5]
-        elif stage == 2:
+        if stage == 2:
             radius = [10 ** 0.5, 50 ** 0.5, 74 ** 0.5]
         elif stage == 1:
             radius = [10 ** 0.5]
@@ -1481,9 +1479,7 @@ class CMA_single:
         cost_y = np.zeros(self.datalength)
 
 
-        if stage == 3:
-            radius = [2 ** 0.5, 10 ** 0.5, 18 ** 0.5, 26 ** 0.5, 34 ** 0.5, 50 ** 0.5, 58 ** 0.5, 74 ** 0.5, 98 ** 0.5]
-        elif stage == 2:
+        if stage == 2:
             radius = [10 ** 0.5, 50 ** 0.5, 74 ** 0.5]
         elif stage == 1:
             radius = [10 ** 0.5]
