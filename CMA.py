@@ -1407,7 +1407,7 @@ class CMA_single:
 
 
         if stage == 2:
-            radius = [10 ** 0.5, 50 ** 0.5, 74 ** 0.5]
+            radius = [2 ** 0.5, 10 ** 0.5, 18 ** 0.5]
         elif stage == 1:
             radius = [10 ** 0.5]
 
@@ -1480,7 +1480,7 @@ class CMA_single:
 
 
         if stage == 2:
-            radius = [10 ** 0.5, 50 ** 0.5, 74 ** 0.5]
+            radius = [2 ** 0.5, 10 ** 0.5, 18 ** 0.5]
         elif stage == 1:
             radius = [10 ** 0.5]
 

@@ -28,19 +28,19 @@ from Phaserecovery import *
 
 address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
 address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
-folder = '20210504_DATA_new/500KLW_1GFO_50GBW_0dBLO_sample32_1000ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm/'
+folder = '20210514_DATA_84/500KLW_3GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_fiber_PMD_Bire_Rec/'
 address += folder
 
 Imageaddress = address + 'image'
 parameter = Parameter(address, simulation=True)
 open_excel(address)
 ##################### control
-isplot = 1
+isplot = 0
 iswrite = 1
 xpart, ypart = 1, 1
-eyestart, eyeend = 27, 29
-tap_start, tap_end = 57, 89
-cma_stage= [1, 2]; cma_iter = [20,1]
+eyestart, eyeend = 0, 32
+tap1_start, tap1_end ,tap1_scan= 73, 91, 2 ;    tap2_start, tap2_end, tap2_scan = 7, 91, 2;
+cma_stage= [1, 2]; cma_iter = [22 ,35]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -113,10 +113,6 @@ for eyepos in range(eyestart, eyeend, 1):
     # RxXQ = signal.resample_poly(Rx_XQ[down_num:], up=1, down=parameter.resamplenumber / n)
     # RxYI = signal.resample_poly(Rx_YI[down_num:], up=1, down=parameter.resamplenumber / n)
     # RxYQ = signal.resample_poly(Rx_YQ[down_num:], up=1, down=parameter.resamplenumber / n)
-    # Rx_Signal_X = RxXI + 1j * RxXQ
-    # Rx_Signal_Y = RxYI + 1j * RxYQ
-    # Rx_Signal_X = RxXI[:, 0] + 1j * RxXQ[:, 0]
-    # Rx_Signal_Y = RxYI[:, 0] + 1j * RxYQ[:, 0]
 
     RxXI=downsample_Rx.return_value(Rx_XI[down_num:])
     RxXQ=downsample_Rx.return_value(Rx_XQ[down_num:])
@@ -124,11 +120,13 @@ for eyepos in range(eyestart, eyeend, 1):
     RxYQ=downsample_Rx.return_value(Rx_YQ[down_num:])
     Rx_Signal_X = RxXI + 1j * RxXQ
     Rx_Signal_Y = RxYI + 1j * RxYQ
+    # Rx_Signal_X = RxXI[: , 0] + 1j * RxXQ[: , 0]
+    # Rx_Signal_Y = RxYI[: , 0] + 1j * RxYQ[: , 0]
     # RxXI ,RxXQ=DataNormalize(RxXI ,RxXQ, parameter.pamorder)
     # RxYI ,RxYQ=DataNormalize(RxYI ,RxYQ, parameter.pamorder)
 
-    Histogram2D('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
-    Histogram2D('Rx_Y_origin_{}'.format(eyepos), Rx_Signal_Y, Imageaddress)
+    # Histogram2D('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
+    # Histogram2D('Rx_Y_origin_{}'.format(eyepos), Rx_Signal_Y, Imageaddress)
     #########IQimba################
     # Rx_Signal_X = np.reshape(Rx_Signal_X,(1,-1))
     # Rx_Signal_Y = np.reshape(Rx_Signal_Y,(1,-1))
@@ -138,7 +136,7 @@ for eyepos in range(eyestart, eyeend, 1):
     # Rx_Y_iqimba = Rx_Y_iqimba[0]
     # Histogram2D("IQimba", Rx_X_iqimba, Imageaddress)
     ##########IQimba################
-    for tap_1 in range(tap_start, tap_end, 2):
+    for tap_1 in range(tap1_start, tap1_end, tap1_scan):
         print("eye : {} ,tap : {}".format(eyepos,tap_1))
         # Rx_Signal_X_mat = sio.loadmat('RxX_mat.mat')
         # Rx_Signal_X_mat = Rx_Signal_X_mat['rxSym']
@@ -163,22 +161,32 @@ for eyepos in range(eyestart, eyeend, 1):
         Rx_X_CMA = Rx_X_CMA_stage1
         Rx_Y_CMA = Rx_Y_CMA_stage1
 
-        # cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=tap2_end, iter=cma_iter[1], mean=0)
-        # cma.stepsize_x = cma.stepsizelist[8]  ; CMAstage2_stepsize_x = cma.stepsize_x;
-        # cma.stepsize_y = cma.stepsizelist[8]  ; CMAstage2_stepsize_y = cma.stepsize_y;
-        # cma.qam_4_side_RD(stage=cma_stage[1])
-        # Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
-        # Rx_Y_CMA_stage2 = cma.rx_y_cma[cma.rx_y_cma != 0]
-        # CMAstage2_tap, CMAstage2_iteration, CMA_cost_X2, CMA_cost_Y2 = tap2_end, cma_iter[1], np.round(cma.costfunx[0][-1], 4), np.round(cma.costfuny[0][-1], 4)
-        # if isplot == True:
-        #     Histogram2D('CMA_X_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-        #                 Rx_X_CMA_stage1, Imageaddress)
-        #     Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
-        #                 Rx_Y_CMA_stage1, Imageaddress)
-        # Rx_X_CMA = Rx_X_CMA_stage2
-        # Rx_Y_CMA = Rx_Y_CMA_stage2
+        # if iswrite == True:
+        #     print('----------------write excel----------------')
+        #     parameter_record = [eyepos,
+        #                         str([cma.mean, cma.type, cma.overhead, cma.earlystop, cma.stepsizeadjust]), \
+        #                         str([CMAstage1_tap, CMAstage1_stepsize_x, CMAstage1_stepsize_x, CMAstage1_iteration,
+        #                              [CMA_cost_X1, CMA_cost_Y1]])]
+        #
+        #     write_excel(address, parameter_record)
+        # for tap_2 in range(tap2_start, tap2_end, tap2_scan):
+        #     cma = CMA_single(Rx_X_CMA_stage1, Rx_Y_CMA_stage1, taps=tap_2, iter=cma_iter[1], mean=0)
+        #     cma.stepsize_x = cma.stepsizelist[6]  ; CMAstage2_stepsize_x = cma.stepsize_x;
+        #     cma.stepsize_y = cma.stepsizelist[6]  ; CMAstage2_stepsize_y = cma.stepsize_y;
+        #     cma.qam_4_side_RD(stage=cma_stage[1])
+        #     # cma.qam_4_butter_RD(stage=cma_stage[1])
+        #     Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
+        #     Rx_Y_CMA_stage2 = cma.rx_y_cma[cma.rx_y_cma != 0]
+        #     CMAstage2_tap, CMAstage2_iteration, CMA_cost_X2, CMA_cost_Y2 = tap_1, cma_iter[1], np.round(cma.costfunx[0][-1], 4), np.round(cma.costfuny[0][-1], 4)
+        #     if isplot == True:
+        #         Histogram2D('CMA_X_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+        #                     Rx_X_CMA_stage2, Imageaddress)
+        #         Histogram2D('CMA_Y_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+        #                     Rx_Y_CMA_stage2, Imageaddress)
+        #     Rx_X_CMA = Rx_X_CMA_stage2
+        #     Rx_Y_CMA = Rx_Y_CMA_stage2
 
-    #--------------------------- X PART------------------------
+        #--------------------------- X PART------------------------
         if xpart == True :
             print('================================')
             print('X part')
@@ -211,7 +219,7 @@ for eyepos in range(eyestart, eyeend, 1):
             SNR_X, EVM_X = SNR(RxX_corr, TxX_corr)
             bercount_X = BERcount(np.array(TxX_corr), np.array(RxX_corr), parameter.pamorder)
             print('BER_X = {} \nSNR_X = {} \nEVM_X = {}'.format(bercount_X, SNR_X, EVM_X))
-            XSNR[eyepos] ,XEVM[eyepos] = SNR_X, EVM_X
+            # XSNR[eyepos] ,XEVM[eyepos] = SNR_X, EVM_X
             if isplot == True: Histogram2D('KENG_X_beforeVol', RxX_corr, Imageaddress, SNR_X, EVM_X)
 
         # --------------------------- Y PART------------------------
@@ -248,9 +256,9 @@ for eyepos in range(eyestart, eyeend, 1):
             SNR_Y, EVM_Y = SNR(RxY_corr, TxY_corr)
             bercount_Y = BERcount(np.array(TxY_corr), np.array(RxY_corr), parameter.pamorder)
             print('BER_Y = {} \nSNR_Y = {} \nEVM_Y = {}'.format(bercount_Y, SNR_Y, EVM_Y))
-            YSNR[eyepos], YEVM[eyepos] = SNR_Y, EVM_Y
+            # YSNR[eyepos], YEVM[eyepos] = SNR_Y, EVM_Y
             if isplot == True: Histogram2D('KENG_Y_beforeVol', RxY_corr, Imageaddress, SNR_Y, EVM_Y)
-
+            # XI_vec = 0; XQ_vec = 0
         if iswrite == True:
             print('----------------write excel----------------')
             parameter_record = [eyepos,
@@ -293,8 +301,8 @@ for eyepos in range(eyestart, eyeend, 1):
     # np.save(address + 'YSNR', YSNR)
 # ===========================================volterra=========================================================
 if isrealvolterra == 1:
-    equalizer_real = Equalizer(np.real(np.array(TxY_corr)), np.real(np.array(RxY_corr)), 3, [31, 31, 31], 0.2)
-    equalizer_imag = Equalizer(np.imag(np.array(TxY_corr)), np.imag(np.array(RxY_corr)), 3, [31, 31, 31], 0.2)
+    equalizer_real = Equalizer(np.real(np.array(TxY_corr)), np.real(np.array(RxY_corr)), 3, [31, 31, 31], 0.3)
+    equalizer_imag = Equalizer(np.imag(np.array(TxY_corr)), np.imag(np.array(RxY_corr)), 3, [31, 31, 31], 0.3)
     Tx_volterra_real, Rx_volterra_real = equalizer_real.realvolterra()
     Tx_volterra_imag, Rx_volterra_imag = equalizer_imag.realvolterra()
     Tx_real_volterra = Tx_volterra_real + 1j * Tx_volterra_imag
