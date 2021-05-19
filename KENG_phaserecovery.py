@@ -439,7 +439,7 @@ class KENG_phaserecovery:
         self.rx_recovery = self.rx_recovery[:, 1:]
         return self.rx_recovery
 
-    def FreqOffsetComp(self, rx, fsamp=84e9, fres=1e7):  # CoarseFrequencyOffset compensation based on prediogram method for M-QAM
+    def FreqOffsetComp(self, rx, fsamp=56e9, fres=1e7):  # CoarseFrequencyOffset compensation based on prediogram method for M-QAM
     # def FreqOffsetComp(self, rx, fsamp=56e9, fres=1e6):  # CoarseFrequencyOffset compensation based on prediogram method for M-QAM
         fr = fres;
         fs = fsamp;

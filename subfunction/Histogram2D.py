@@ -59,12 +59,12 @@ def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0):
         fig.add_annotation(
             x=0,
             y=miny-0.2,
-            text="SNR = {}(dB)".format(SNR),
+            text="EVM = {}(%)".format(EVM * 100),
             showarrow=False)
         fig.add_annotation(
             x=0,
             y=miny-0.35,
-            text="EVM = {}(%)".format(EVM * 100),
+            text="SNR = {}(dB)".format(SNR),
             showarrow=False)
     fig.add_trace(go.Histogram2d(
         x=x,

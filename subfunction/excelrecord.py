@@ -53,14 +53,14 @@ def write_excel(address, parameter_record):
         ws.cell(row=maxrow + 1, column=1, value=datetime.datetime.now())
         ws.cell(row=maxrow + 1, column=i + 2, value=parameter_record[i])
 
-    fill = PatternFill("solid", fgColor="d9b3ff")
-    if (parameter_record[7][8:12] == parameter_record[7][2:6] ):
-        for cell in list(ws.rows)[maxrow][8 : 10]:
-            cell.fill = fill
-    #
-    fill = PatternFill("solid", fgColor="88F1A1")
-    if (parameter_record[9][8:12] == parameter_record[9][2:6] ):
-        for cell in list(ws.rows)[maxrow][10 : 12]:
-            cell.fill = fill
+    # fill = PatternFill("solid", fgColor="d9b3ff")
+    # if (parameter_record[7][8:12] == parameter_record[7][2:6] ):
+    #     for cell in list(ws.rows)[maxrow][8 : 10]:
+    #         cell.fill = fill
+    # #
+    # fill = PatternFill("solid", fgColor="88F1A1")
+    # if (parameter_record[9][8:12] == parameter_record[9][2:6] ):
+    #     for cell in list(ws.rows)[maxrow][10 : 12]:
+    #         cell.fill = fill
 
     wb.save(address + 'Record.xlsx')
