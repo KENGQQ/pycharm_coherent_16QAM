@@ -4,9 +4,9 @@ import math
 
 
 class CD_compensator:
-    def __init__(self, RxX, RxY):
-        self.KM = 80
-        self.Gbaud = 56e9
+    def __init__(self, RxX, RxY, Gbaud, KM):
+        self.KM = KM
+        self.Gbaud = Gbaud
         print("CD_tap_needed : {}".format(np.floor(16e-12 * self.KM * (1553 ** 2) / 2 / 3e17 / (1 / self.Gbaud) ** 2)))
         self.N = np.floor(16e-12 * self.KM * (1553 ** 2) / 2 / 3e17 / (1 / self.Gbaud) ** 2)
         self.tap = int(np.floor(16e-12 * self.KM * (1553 ** 2) / 2 / 3e17 / (1 / self.Gbaud) ** 2) * 2 + 1)
