@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 import numpy as np
 
-def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0):
+def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0, BERcount= 0):
     x = np.real(data)
     y = np.imag(data)
     miny = y.min()
@@ -45,7 +45,7 @@ def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0):
         yaxis='y2',
         marker=dict(
             color='#F58518'
-        )
+        ),
     ))
     fig.update_xaxes(range=[-4, 4])
     fig.update_layout(
@@ -55,17 +55,19 @@ def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0):
         )
     )
 
-    if SNR != 0:
-        fig.add_annotation(
-            x=0,
-            y=miny-0.2,
-            text="EVM = {}(%)".format(EVM * 100),
-            showarrow=False)
-        fig.add_annotation(
-            x=0,
-            y=miny-0.35,
-            text="SNR = {}(dB)".format(SNR),
-            showarrow=False)
+    # if SNR != 0:
+    #     print(miny)
+    #     print(x.max())
+    #     fig.add_annotation(
+    #         x=x.max() + 0.5,
+    #         y=y.max() + 0.5,
+    #         text="EVM = {}(%)".format(EVM * 100),
+    #         showarrow=False)
+    #     fig.add_annotation(
+    #         x=0,
+    #         y=miny-0.35,
+    #         text="SNR = {}(dB)".format(SNR),
+    #         showarrow=False)
     fig.add_trace(go.Histogram2d(
         x=x,
         y=y,
@@ -113,7 +115,12 @@ def Histogram2D(filename, data, Image_Address, SNR=0, EVM=0):
             size=16,
             color="Black")
         )
-    # fig.write_image(r"data\KENG_optsim_py\20201130_DATA_2Laser_final\noLW_1GFO_noNoise_80KM_initialphase225\image\{}.png".format(filename))
+    if SNR !=0 :
+        fig.update_layout(
+            xaxis_title="SNR : {}_EVM : {}_BERcount : {}".format(SNR, EVM, BERcount)
+        )
+
+            # fig.write_image(r"data\KENG_optsim_py\20201130_DATA_2Laser_final\noLW_1GFO_noNoise_80KM_initialphase225\image\{}.png".format(filename))
     fig.write_image(Image_Address + "\{}.png".format(filename))
 
     # fig.show()

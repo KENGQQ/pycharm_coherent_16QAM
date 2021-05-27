@@ -37,12 +37,12 @@ Imageaddress = address + 'image'
 parameter = Parameter(address, simulation=True)
 # open_excel(address)
 ##################### control
-isplot = 0
-iswrite = 1
+isplot = 1
+iswrite = 0
 xpart, ypart = 1, 1
 eyestart, eyeend, eyescan = 0, 32, 1
-tap1_start, tap1_end ,tap1_scan= 41, 99 , 2 ;    tap2_start, tap2_end, tap2_scan = 71, 73, 2;
-cma_stage= [1, 2]; cma_iter = [10 ,20]
+tap1_start, tap1_end ,tap1_scan= 77, 109, 2 ;    tap2_start, tap2_end, tap2_scan = 15, 17, 2;
+cma_stage= [1, 2]; cma_iter = [15, 30]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -59,6 +59,8 @@ XIshift, XQshift, XI_corr, XQ_corr, SNR_X, EVM_X, bercount_X= 0, 0, 0, 0, 0, 0, 
 YIshift, YQshift, YI_corr, YQ_corr, SNR_Y, EVM_Y, bercount_Y= 0, 0, 0, 0, 0, 0, 0
 r1 = 2.1     # 1.55
 r2 = 3.8     # 3.2
+# r1 = 1.55
+# r2 = 3.2
 ##############################################################################################################################
 
 print("symbolrate = {}Gbit/s\npamorder = {}\nresamplenumber = {}".format(parameter.symbolRate / 1e9, parameter.pamorder, parameter.resamplenumber))
@@ -81,44 +83,7 @@ downsample_Rx = KENG_downsample(down_coeff=parameter.resamplenumber)
 Rx_XI, Rx_XQ = DataNormalize(parameter.RxXI, parameter.RxXQ, parameter.pamorder)
 Rx_YI, Rx_YQ = DataNormalize(parameter.RxYI, parameter.RxYQ, parameter.pamorder)
 
-# RxXI = downsample_Rx.return_value(Rx_XI[0:])
-# RxXQ = downsample_Rx.return_value(Rx_XQ[0:])
-# RxYI = downsample_Rx.return_value(Rx_YI[0:])
-# RxYQ = downsample_Rx.return_value(Rx_YQ[0:])
-
-# n = 2
-# k = 1
-# RxXI = signal.resample_poly(Rx_XI[0:], up=k, down=parameter.resamplenumber / n)
-# RxXQ = signal.resample_poly(Rx_XQ[0:], up=k, down=parameter.resamplenumber / n)
-# RxYI = signal.resample_poly(Rx_YI[0:], up=k, down=parameter.resamplenumber / n)
-# RxYQ = signal.resample_poly(Rx_YQ[0:], up=k, down=parameter.resamplenumber / n)
-#
-# Rx_Signal_X = RxXI + 1j * RxXQ
-# Rx_Signal_Y = RxYI + 1j * RxYQ
-#
-# cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=57, iter=cma_iter[0], mean=0)
-# cma.stepsize_x = cma.stepsizelist[5];
-# CMAstage1_stepsize_x = cma.stepsize_x;
-# cma.stepsize_y = cma.stepsizelist[5];
-# CMAstage1_stepsize_y = cma.stepsize_y;
-# # cma.qam_4_butter_RD(stage=cma_stage[0])
-# cma.qam_4_side_RD(stage=cma_stage[0])
-# Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
-# Rx_Y_CMA_stage1 = cma.rx_y_cma[cma.rx_y_cma != 0]
-# if isplot == True:
-#     Histogram2D('CMA_X_stage1 taps={} {}'.format(cma.cmataps, cma.type),
-#                 Rx_X_CMA_stage1, Imageaddress)
-#     Histogram2D('CMA_Y_stage1 taps={} {}'.format(cma.cmataps, cma.type),
-#                 Rx_Y_CMA_stage1, Imageaddress)
-# Rx_X_CMA = Rx_X_CMA_stage1
-# Rx_Y_CMA = Rx_Y_CMA_stage1
-
-
-XSNR, XEVM, YSNR, YEVM = np.zeros(parameter.resamplenumber), np.zeros(parameter.resamplenumber), np.zeros(
-    parameter.resamplenumber), np.zeros(parameter.resamplenumber)
-
-# sio.savemat('RxX_py.mat', {'RxX': Rx_XI + 1j * Rx_XQ})
-# sio.savemat('RxY_py.mat', {'RxY': Rx_YI + 1j * Rx_YQ})
+XSNR, XEVM, YSNR, YEVM = np.zeros(parameter.resamplenumber), np.zeros(parameter.resamplenumber), np.zeros(parameter.resamplenumber), np.zeros(parameter.resamplenumber)
 
 LogTxXI1 = downsample_Tx.return_value(parameter.LogTxXI1)
 LogTxXI2 = downsample_Tx.return_value(parameter.LogTxXI2)
@@ -150,6 +115,8 @@ for eyepos in range(eyestart, eyeend, eyescan):
     # RxXQ = signal.resample_poly(Rx_XQ[down_num:], up=1, down=parameter.resamplenumber / n)
     # RxYI = signal.resample_poly(Rx_YI[down_num:], up=1, down=parameter.resamplenumber / n)
     # RxYQ = signal.resample_poly(Rx_YQ[down_num:], up=1, down=parameter.resamplenumber / n)
+    # Rx_XI = np.real(Rx_Signal_X_CD); Rx_XQ = np.imag(Rx_Signal_X_CD)
+    # Rx_YI = np.real(Rx_Signal_Y_CD); Rx_YQ = np.imag(Rx_Signal_Y_CD)
 
     RxXI=downsample_Rx.return_value(Rx_XI[down_num:])
     RxXQ=downsample_Rx.return_value(Rx_XQ[down_num:])
@@ -160,8 +127,8 @@ for eyepos in range(eyestart, eyeend, eyescan):
     # Rx_Signal_X = RxXI[: , 0] + 1j * RxXQ[: , 0]
     # Rx_Signal_Y = RxYI[: , 0] + 1j * RxYQ[: , 0]
 
-    # Histogram2D('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
-    # Histogram2D('Rx_Y_origin_{}'.format(eyepos), Rx_Signal_Y, Imageaddress)
+    Histogram2D('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
+    Histogram2D('Rx_Y_origin_{}'.format(eyepos), Rx_Signal_Y, Imageaddress)
     #########IQimba################
     # Rx_Signal_X = np.reshape(Rx_Signal_X,(1,-1))
     # Rx_Signal_Y = np.reshape(Rx_Signal_Y,(1,-1))
@@ -171,28 +138,22 @@ for eyepos in range(eyestart, eyeend, eyescan):
     # Rx_Y_iqimba = Rx_Y_iqimba[0]
     # Histogram2D("IQimba", Rx_X_iqimba, Imageaddress)
     ##########IQimba################
-    cd_compensator = CD_compensator(Rx_Signal_X, Rx_Signal_Y, Gbaud=84e9, KM = 80)
+    cd_compensator = CD_compensator(Rx_Signal_X, Rx_Signal_Y, Gbaud= 28.125e9, KM = 100) # 39.62
     Rx_Signal_X_CD, Rx_Signal_Y_CD = cd_compensator.FIR_CD();
-
-    Rx_Signal_X_CD = Rx_Signal_X_CD[Rx_Signal_X_CD != 0]
-    Rx_Signal_Y_CD = Rx_Signal_Y_CD[Rx_Signal_Y_CD != 0]
-    if isplot == True: Histogram2D('Rx_X_CDcomp_{}'.format(eyepos), Rx_Signal_X_CD, Imageaddress)
-    if isplot == True: Histogram2D('Rx_Y_CDcomp_{}'.format(eyepos), Rx_Signal_Y_CD, Imageaddress)
+    # # Rx_Signal_X_CD, Rx_Signal_Y_CD = cd_compensator.FFT_CD_2();
+    # Rx_Signal_X_CD = Rx_Signal_X_CD[Rx_Signal_X_CD != 0]
+    # Rx_Signal_Y_CD = Rx_Signal_Y_CD[Rx_Signal_Y_CD != 0]
+    # if isplot == True: Histogram2D('Rx_X_CDcomp_{}'.format(eyepos), Rx_Signal_X_CD, Imageaddress)
+    # if isplot == True: Histogram2D('Rx_Y_CDcomp_{}'.format(eyepos), Rx_Signal_Y_CD, Imageaddress)
 
     ######### CD ################
     for tap_1 in range(tap1_start, tap1_end, tap1_scan):
         print("eye : {} ,tap : {}".format(eyepos,tap_1))
-        # Rx_Signal_X_mat = sio.loadmat('RxX_mat.mat')
-        # Rx_Signal_X_mat = Rx_Signal_X_mat['rxSym']
-        # Rx_Signal_X = np.reshape(Rx_Signal_X_mat, -1)
-        # Rx_Signal_Y_mat = sio.loadmat('RxY_mat.mat')
-        # Rx_Signal_Y_mat = Rx_Signal_Y_mat['rxSym']
-        # Rx_Signal_Y = np.reshape(Rx_Signal_Y_mat, -1)
 
-        # cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=tap_1, iter=cma_iter[0], mean=0)
-        cma = CMA_single(Rx_Signal_X_CD, Rx_Signal_Y_CD, taps=tap_1, iter=cma_iter[0], mean=0)
-        cma.stepsize_x = cma.stepsizelist[5]; CMAstage1_stepsize_x = cma.stepsize_x;
-        cma.stepsize_y = cma.stepsizelist[5]; CMAstage1_stepsize_y = cma.stepsize_y;
+        cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=tap_1, iter=cma_iter[0], mean=0)
+        # cma = CMA_single(Rx_Signal_X_CD, Rx_Signal_Y_CD, taps=tap_1, iter=cma_iter[0], mean=0)
+        cma.stepsize_x = cma.stepsizelist[4]; CMAstage1_stepsize_x = cma.stepsize_x;
+        cma.stepsize_y = cma.stepsizelist[4]; CMAstage1_stepsize_y = cma.stepsize_y;
         cma.qam_4_butter_RD(stage=cma_stage[0])
         # cma.qam_4_side_RD(stage=cma_stage[0])
         Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
@@ -216,9 +177,9 @@ for eyepos in range(eyestart, eyeend, eyescan):
             write_excel(address, parameter_record)
 
         for tap_2 in range(tap2_start, tap2_end, tap2_scan):
-            cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=tap_2, iter=cma_iter[1], mean=0)
-            cma.stepsize_x = cma.stepsizelist[6]  ; CMAstage2_stepsize_x = cma.stepsize_x;
-            cma.stepsize_y = cma.stepsizelist[6]  ; CMAstage2_stepsize_y = cma.stepsize_y;
+            cma = CMA_single(Rx_X_CMA_stage1, Rx_Y_CMA_stage1, taps=tap_2, iter=cma_iter[1], mean=0)
+            cma.stepsize_x = cma.stepsizelist[5]  ; CMAstage2_stepsize_x = cma.stepsize_x;
+            cma.stepsize_y = cma.stepsizelist[5]  ; CMAstage2_stepsize_y = cma.stepsize_y;
             cma.qam_4_butter_RD(stage=cma_stage[1])
             # cma.qam_4_side_RD(stage=cma_stage[1])
             Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
@@ -249,7 +210,6 @@ for eyepos in range(eyestart, eyeend, eyescan):
             PN_RxX = PN_RxX[PN_RxX != 0]
             if isplot == True: Histogram2D('KENG_PhaseNoise_X', PN_RxX, Imageaddress)
 
-            # PN_RxX = Rx_Signal_X
             Normal_ph_RxX_real, Normal_ph_RxX_imag = DataNormalize(np.real(PN_RxX), np.imag(PN_RxX), parameter.pamorder)
             Normal_ph_RxX = Normal_ph_RxX_real + 1j * Normal_ph_RxX_imag
             # if isplot == True: Histogram2D('KENG_PLL_Normalized_X', Normal_ph_RxX, Imageaddress)
@@ -266,7 +226,7 @@ for eyepos in range(eyestart, eyeend, eyescan):
             bercount_X = BERcount(np.array(TxX_corr), np.array(RxX_corr), parameter.pamorder)
             print('BER_X = {} \nSNR_X = {} \nEVM_X = {}'.format(bercount_X, SNR_X, EVM_X))
             # XSNR[eyepos] ,XEVM[eyepos] = SNR_X, EVM_X
-            if isplot == True: Histogram2D('KENG_X_beforeVol', RxX_corr, Imageaddress, SNR_X, EVM_X)
+            if isplot == True: Histogram2D('KENG_X_beforeVol', RxX_corr, Imageaddress, SNR_X, EVM_X, bercount_X)
 
         # --------------------------- Y PART------------------------
         if ypart == True:
@@ -286,15 +246,14 @@ for eyepos in range(eyestart, eyeend, eyescan):
             PN_RxY = PN_RxY[PN_RxY != 0]
             if isplot == True: Histogram2D('KENG_PhaseNoise_Y', PN_RxY, Imageaddress)
 
-            # PN_RxY = Rx_Signal_Y
             Normal_ph_RxY_real, Normal_ph_RxY_imag = DataNormalize(np.real(PN_RxY), np.imag(PN_RxY), parameter.pamorder)
             Normal_ph_RxY = Normal_ph_RxY_real + 1j * Normal_ph_RxY_imag
             # if isplot == True: Histogram2D('KENG_PLL_Normalized_Y', Normal_ph_RxY, Imageaddress)
 
             Correlation = KENG_corr(window_length=window_length)
-            TxY_real, RxY_real, p = Correlation.corr_ex(TxYI, Normal_ph_RxY[0:correlation_length], 13); YIshift = Correlation.shift; YI_corr = Correlation.corr; YI_vec = Correlation.cal_vec;
+            TxY_real, RxY_real, p = Correlation.corr_ex(TxXI, Normal_ph_RxY[0:correlation_length], 13); YIshift = Correlation.shift; YI_corr = Correlation.corr; YI_vec = Correlation.cal_vec;
             Correlation = KENG_corr(window_length=window_length)
-            TxY_imag, RxY_imag, p = Correlation.corr_ex(TxYQ, Normal_ph_RxY[0:correlation_length], 13); YQshift = Correlation.shift; YQ_corr = Correlation.corr; YQ_vec = Correlation.cal_vec;
+            TxY_imag, RxY_imag, p = Correlation.corr_ex(TxXQ, Normal_ph_RxY[0:correlation_length], 13); YQshift = Correlation.shift; YQ_corr = Correlation.corr; YQ_vec = Correlation.cal_vec;
             RxY_corr = RxY_real[0:final_length] + 1j * RxY_imag[0:final_length]
             TxY_corr = TxY_real[0:final_length] + 1j * TxY_imag[0:final_length]
             # if isplot == True: Histogram2D('KENG_Corr_Y', RxY_corr, Imageaddress)
@@ -303,7 +262,7 @@ for eyepos in range(eyestart, eyeend, eyescan):
             bercount_Y = BERcount(np.array(TxY_corr), np.array(RxY_corr), parameter.pamorder)
             print('BER_Y = {} \nSNR_Y = {} \nEVM_Y = {}'.format(bercount_Y, SNR_Y, EVM_Y))
             # YSNR[eyepos], YEVM[eyepos] = SNR_Y, EVM_Y
-            if isplot == True: Histogram2D('KENG_Y_befVol_S{}_E{}_B{}'.format(SNR_Y, EVM_Y, bercount_Y), RxY_corr, Imageaddress)
+            if isplot == True: Histogram2D('KENG_Y_beforeVol', RxY_corr, Imageaddress, SNR_Y, EVM_Y, bercount_Y)
             # XI_vec = 0; XQ_vec = 0
             # if iswrite == True:
             #     print('----------------write excel----------------')
@@ -322,10 +281,6 @@ for eyepos in range(eyestart, eyeend, eyescan):
             # write_excel(address, parameter_record)
 
 
-    # PN_Rx=ph.QAM_4(phasenoise_Rx,c1_radius=1.8,c2_radius=3.2)
-    # PN_Rx = ph.QAM_5(phasenoise_Rx, c1_radius=1.8, c2_radius=3.2)
-    # PN_Rx = ph.QAM_6(Rx_X_CMA, c1_radius=1.55, c2_radius=3.2)
-    # PN_Rx = ph.QAM_6(phasenoise_Rx, c1_radius=2, c2_radius=5.22)
     # #--------------
 
     # Correlation = KENG_corr(window_length=7000)
@@ -337,14 +292,6 @@ for eyepos in range(eyestart, eyeend, eyescan):
     # Tx_corr = np.reshape(Tx_corr, (-1))
     # Histogram2D('KENG_Corr', Rx_corr)
 
-    # parameter_record = [eyepos, str(
-    #     [cma.mean, cma.type, cma.overhead*100, cma.cmataps, cma.stepsize, cma.iterator, cma.earlystop, cma.stepsizeadjust]),
-    #                     1e-3, str([0, 0, 0])]
-    #
-    # write_excel(address, parameter_record)
-    #
-    # np.save(address + 'XSNR', XSNR)
-    # np.save(address + 'YSNR', YSNR)
 # ===========================================volterra=========================================================
 if isrealvolterra == 1:
     equalizer_real = Equalizer(np.real(np.array(TxY_corr)), np.real(np.array(RxY_corr)), 3, [31, 31, 31], 0.2)
@@ -359,7 +306,7 @@ if isrealvolterra == 1:
     print("BERcount_realvol : {}".format(realvol_bercount))
 
     print("SNR_realvol : {}, EVM_realvol : {}".format(snr_realvolterra, evm_realvolterra))
-    Histogram2D("RealVolterra_SNR{}_EVM{}_BER{}".format(snr_realvolterra, evm_realvolterra, realvol_bercount), Rx_real_volterra, Imageaddress)
+    Histogram2D("RealVolterra", Rx_real_volterra, Imageaddress, snr_realvolterra, evm_realvolterra, realvol_bercount)
 
 # ------
 if iscomplexvolterra == 1:
