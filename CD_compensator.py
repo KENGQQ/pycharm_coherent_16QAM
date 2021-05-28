@@ -64,7 +64,6 @@ class CD_compensator:
         RxX_out = np.zeros(self.datalength, dtype = "complex_")
         for k in range(1, int(self.datalength / step)):
             RxX_temp = np.zeros(self.datalength, dtype="complex_")
-            print(RxX_temp)
             FFT_RxX = self.rx_x[(k - 1) * step: k * step]
             zeropadding = np.zeros(N, dtype = "complex_")
             RxX_temp[(k - 1) * step : k * Nfft - (k - 1) * N] = np.concatenate((FFT_RxX, zeropadding), axis=None)
@@ -94,14 +93,14 @@ class CD_compensator:
 
 
     def FFT_CD_2(self):
-        Nfft = 96 * 4
+        Nfft = 96 * 2
         G = int(Nfft / 4)
         L = int(Nfft / 2)
 
         c = 3e17     #nm/s
         T = 1 / (self.Gbaud)
         q = np.linspace(int(-Nfft / 2), int(Nfft / 2) - 1, Nfft)
-        w = 2 * math.pi * (1 / T) * q     # angular freq
+        w = 2 * math.pi * (1 / T) * q / Nfft    # angular freq
         wavelength = 1553    #nm
         D = 16e-12   # nm / s /km
         N = 2 * np.ceil(np.sqrt((math.pi ** 2) * (c ** 2) * (T ** 4) + 4 * (wavelength ** 4) * (D ** 2) * (self.KM ** 2)) / math.pi / c / (T ** 2) ) + 2
@@ -109,17 +108,17 @@ class CD_compensator:
         print("FFT_CD_tap_needed : {}".format(N))
 
         filter = np.exp(-1j * D * (wavelength ** 2) * (w ** 2) * self.KM / 4 / math.pi / c)
-        filter = np.exp(-1j * D * (wavelength ** 2) * (w ** 2)  / 4 / math.pi / c)
+        # filter = np.exp(-1j * D * (wavelength ** 2) * (w ** 2)  / 4 / math.pi / c)
+
+        FDE = np.fft.fftshift(filter)
+        # FDE = filter
 
         RxX_matrix_padding = np.zeros([int(self.datalength / L) - 1, Nfft], dtype='complex_')
         RxX_out = np.zeros(L * int(self.datalength / L), dtype="complex_")
 
         for k in range(0, int(self.datalength / L) - 1):
-            print(k)
             RxX_matrix_padding[k, G : Nfft - G] = self.rx_x[k * L : (k + 1) * L]
 
-        FDE = np.fft.fftshift(filter)
-        FDE = filter
         for k in range(0, int(self.datalength / L) - 1):
             RxX_out_tmp = np.zeros(L * int(self.datalength / L), dtype="complex_")
             RxX_out_tmp[k * L : (k + 1) * Nfft - k * 2 * G] = np.fft.ifft(np.fft.fft(RxX_matrix_padding[k, :]) * FDE)

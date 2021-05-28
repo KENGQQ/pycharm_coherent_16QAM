@@ -29,7 +29,7 @@ from Phaserecovery import *
 from CD_compensator import *
 
 address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
-address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
+# address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 folder = '20210519_DATA_84_Bire/100KLW_1GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR34dB_LO00dBm_fiber_PMD_Bire/'
 address += folder
 
@@ -41,8 +41,8 @@ isplot = 1
 iswrite = 0
 xpart, ypart = 1, 1
 eyestart, eyeend, eyescan = 0, 32, 1
-tap1_start, tap1_end ,tap1_scan= 77, 109, 2 ;    tap2_start, tap2_end, tap2_scan = 15, 17, 2;
-cma_stage= [1, 2]; cma_iter = [15, 30]
+tap1_start, tap1_end ,tap1_scan= 5, 7, 2 ;    tap2_start, tap2_end, tap2_scan = 25, 27, 2;
+cma_stage= [1, 2]; cma_iter = [5, 20]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -127,8 +127,8 @@ for eyepos in range(eyestart, eyeend, eyescan):
     # Rx_Signal_X = RxXI[: , 0] + 1j * RxXQ[: , 0]
     # Rx_Signal_Y = RxYI[: , 0] + 1j * RxYQ[: , 0]
 
-    Histogram2D('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
-    Histogram2D('Rx_Y_origin_{}'.format(eyepos), Rx_Signal_Y, Imageaddress)
+    # Histogram2D('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
+    # Histogram2D('Rx_Y_origin_{}'.format(eyepos), Rx_Signal_Y, Imageaddress)
     #########IQimba################
     # Rx_Signal_X = np.reshape(Rx_Signal_X,(1,-1))
     # Rx_Signal_Y = np.reshape(Rx_Signal_Y,(1,-1))
@@ -138,22 +138,22 @@ for eyepos in range(eyestart, eyeend, eyescan):
     # Rx_Y_iqimba = Rx_Y_iqimba[0]
     # Histogram2D("IQimba", Rx_X_iqimba, Imageaddress)
     ##########IQimba################
-    cd_compensator = CD_compensator(Rx_Signal_X, Rx_Signal_Y, Gbaud= 28.125e9, KM = 100) # 39.62
-    Rx_Signal_X_CD, Rx_Signal_Y_CD = cd_compensator.FIR_CD();
-    # # Rx_Signal_X_CD, Rx_Signal_Y_CD = cd_compensator.FFT_CD_2();
+    cd_compensator = CD_compensator(Rx_Signal_X, Rx_Signal_Y, Gbaud= 84e9, KM = 80) # 39.62
+    # Rx_Signal_X_CD, Rx_Signal_Y_CD = cd_compensator.FIR_CD();
+    Rx_Signal_X_CD, Rx_Signal_Y_CD = cd_compensator.FFT_CD_2();
     # Rx_Signal_X_CD = Rx_Signal_X_CD[Rx_Signal_X_CD != 0]
     # Rx_Signal_Y_CD = Rx_Signal_Y_CD[Rx_Signal_Y_CD != 0]
-    # if isplot == True: Histogram2D('Rx_X_CDcomp_{}'.format(eyepos), Rx_Signal_X_CD, Imageaddress)
-    # if isplot == True: Histogram2D('Rx_Y_CDcomp_{}'.format(eyepos), Rx_Signal_Y_CD, Imageaddress)
+    if isplot == True: Histogram2D('Rx_X_CDcomp_{}'.format(eyepos), Rx_Signal_X_CD, Imageaddress)
+    if isplot == True: Histogram2D('Rx_Y_CDcomp_{}'.format(eyepos), Rx_Signal_Y_CD, Imageaddress)
 
     ######### CD ################
     for tap_1 in range(tap1_start, tap1_end, tap1_scan):
         print("eye : {} ,tap : {}".format(eyepos,tap_1))
 
-        cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=tap_1, iter=cma_iter[0], mean=0)
-        # cma = CMA_single(Rx_Signal_X_CD, Rx_Signal_Y_CD, taps=tap_1, iter=cma_iter[0], mean=0)
-        cma.stepsize_x = cma.stepsizelist[4]; CMAstage1_stepsize_x = cma.stepsize_x;
-        cma.stepsize_y = cma.stepsizelist[4]; CMAstage1_stepsize_y = cma.stepsize_y;
+        # cma = CMA_single(Rx_Signal_X, Rx_Signal_Y, taps=tap_1, iter=cma_iter[0], mean=0)
+        cma = CMA_single(Rx_Signal_X_CD, Rx_Signal_Y_CD, taps=tap_1, iter=cma_iter[0], mean=0)
+        cma.stepsize_x = cma.stepsizelist[5]; CMAstage1_stepsize_x = cma.stepsize_x;
+        cma.stepsize_y = cma.stepsizelist[5]; CMAstage1_stepsize_y = cma.stepsize_y;
         cma.qam_4_butter_RD(stage=cma_stage[0])
         # cma.qam_4_side_RD(stage=cma_stage[0])
         Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
@@ -177,9 +177,9 @@ for eyepos in range(eyestart, eyeend, eyescan):
             write_excel(address, parameter_record)
 
         for tap_2 in range(tap2_start, tap2_end, tap2_scan):
-            cma = CMA_single(Rx_X_CMA_stage1, Rx_Y_CMA_stage1, taps=tap_2, iter=cma_iter[1], mean=0)
-            cma.stepsize_x = cma.stepsizelist[5]  ; CMAstage2_stepsize_x = cma.stepsize_x;
-            cma.stepsize_y = cma.stepsizelist[5]  ; CMAstage2_stepsize_y = cma.stepsize_y;
+            cma = CMA_single(Rx_Signal_X_CD, Rx_Signal_Y_CD, taps=tap_2, iter=cma_iter[1], mean=0)
+            cma.stepsize_x = cma.stepsizelist[4]  ; CMAstage2_stepsize_x = cma.stepsize_x;
+            cma.stepsize_y = cma.stepsizelist[4]  ; CMAstage2_stepsize_y = cma.stepsize_y;
             cma.qam_4_butter_RD(stage=cma_stage[1])
             # cma.qam_4_side_RD(stage=cma_stage[1])
             Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
