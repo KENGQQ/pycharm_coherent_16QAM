@@ -29,7 +29,7 @@ from Phaserecovery import *
 from CD_compensator import *
 
 address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
-# address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
+address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 folder = '20210519_DATA_84_Bire/100KLW_1GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR34dB_LO00dBm_fiber_PMD_Bire/'
 address += folder
 
@@ -40,9 +40,9 @@ parameter = Parameter(address, simulation=True)
 isplot = 1
 iswrite = 0
 xpart, ypart = 1, 1
-eyestart, eyeend, eyescan = 0, 32, 1
-tap1_start, tap1_end ,tap1_scan= 5, 7, 2 ;    tap2_start, tap2_end, tap2_scan = 25, 27, 2;
-cma_stage= [1, 2]; cma_iter = [5, 20]
+eyestart, eyeend, eyescan = 0, 1, 1
+tap1_start, tap1_end ,tap1_scan= 23, 25, 2 ;    tap2_start, tap2_end, tap2_scan = 45, 47, 2;
+cma_stage= [1, 2]; cma_iter = [5, 5]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -66,7 +66,7 @@ r2 = 3.8     # 3.2
 print("symbolrate = {}Gbit/s\npamorder = {}\nresamplenumber = {}".format(parameter.symbolRate / 1e9, parameter.pamorder, parameter.resamplenumber))
 Tx2Bit = KENG_Tx2Bit(PAM_order=parameter.pamorder)
 downsample_Tx = KENG_downsample(down_coeff=parameter.resamplenumber)
-downsample_Rx = KENG_downsample(down_coeff=parameter.resamplenumber)
+downsample_Rx = KENG_downsample(down_coeff=int(parameter.resamplenumber))
 
 # Tx_XI, Tx_XQ = DataNormalize(parameter.TxXI ,parameter.TxXQ ,parameter.pamorder)
 # Tx_YI, Tx_YQ = DataNormalize(parameter.TxYI ,parameter.TxYQ ,parameter.pamorder)
@@ -138,9 +138,10 @@ for eyepos in range(eyestart, eyeend, eyescan):
     # Rx_Y_iqimba = Rx_Y_iqimba[0]
     # Histogram2D("IQimba", Rx_X_iqimba, Imageaddress)
     ##########IQimba################
+    # Rx_Signal_X = np.array(range(21))
     cd_compensator = CD_compensator(Rx_Signal_X, Rx_Signal_Y, Gbaud= 84e9, KM = 80) # 39.62
     # Rx_Signal_X_CD, Rx_Signal_Y_CD = cd_compensator.FIR_CD();
-    Rx_Signal_X_CD, Rx_Signal_Y_CD = cd_compensator.FFT_CD_2();
+    Rx_Signal_X_CD, Rx_Signal_Y_CD = cd_compensator.overlap_save(Nfft=1024, NOverlap=310);
     # Rx_Signal_X_CD = Rx_Signal_X_CD[Rx_Signal_X_CD != 0]
     # Rx_Signal_Y_CD = Rx_Signal_Y_CD[Rx_Signal_Y_CD != 0]
     if isplot == True: Histogram2D('Rx_X_CDcomp_{}'.format(eyepos), Rx_Signal_X_CD, Imageaddress)
@@ -177,9 +178,9 @@ for eyepos in range(eyestart, eyeend, eyescan):
             write_excel(address, parameter_record)
 
         for tap_2 in range(tap2_start, tap2_end, tap2_scan):
-            cma = CMA_single(Rx_Signal_X_CD, Rx_Signal_Y_CD, taps=tap_2, iter=cma_iter[1], mean=0)
-            cma.stepsize_x = cma.stepsizelist[4]  ; CMAstage2_stepsize_x = cma.stepsize_x;
-            cma.stepsize_y = cma.stepsizelist[4]  ; CMAstage2_stepsize_y = cma.stepsize_y;
+            cma = CMA_single(Rx_X_CMA_stage1, Rx_Y_CMA_stage1, taps=tap_2, iter=cma_iter[1], mean=0)
+            cma.stepsize_x = cma.stepsizelist[7]  ; CMAstage2_stepsize_x = cma.stepsize_x;
+            cma.stepsize_y = cma.stepsizelist[7]  ; CMAstage2_stepsize_y = cma.stepsize_y;
             cma.qam_4_butter_RD(stage=cma_stage[1])
             # cma.qam_4_side_RD(stage=cma_stage[1])
             Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
@@ -198,7 +199,7 @@ for eyepos in range(eyestart, eyeend, eyescan):
             print('================================')
             print('X part')
             ph = KENG_phaserecovery()
-            FOcompen_X = ph.FreqOffsetComp(Rx_X_CMA, fsamp=84e9, fres=1e7)
+            FOcompen_X = ph.FreqOffsetComp(Rx_X_CMA, fsamp=56e9, fres=1e5)
             if isplot == True: Histogram2D('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
 
             DDPLL_RxX = ph.PLL(FOcompen_X)
@@ -233,7 +234,7 @@ for eyepos in range(eyestart, eyeend, eyescan):
             print('================================')
             print('Y part')
             ph = KENG_phaserecovery()
-            FOcompen_Y = ph.FreqOffsetComp(Rx_Y_CMA, fsamp=84e9, fres=1e7)
+            FOcompen_Y = ph.FreqOffsetComp(Rx_Y_CMA, fsamp=56e9, fres=1e7)
             if isplot == True: Histogram2D('KENG_FOcompensate_Y', FOcompen_Y, Imageaddress)
 
             DDPLL_RxY = ph.PLL(FOcompen_Y)
@@ -294,8 +295,8 @@ for eyepos in range(eyestart, eyeend, eyescan):
 
 # ===========================================volterra=========================================================
 if isrealvolterra == 1:
-    equalizer_real = Equalizer(np.real(np.array(TxY_corr)), np.real(np.array(RxY_corr)), 3, [31, 31, 31], 0.2)
-    equalizer_imag = Equalizer(np.imag(np.array(TxY_corr)), np.imag(np.array(RxY_corr)), 3, [31, 31, 31], 0.2)
+    equalizer_real = Equalizer(np.real(np.array(TxX_corr)), np.real(np.array(RxX_corr)), 3, [31, 31, 31], 0.2)
+    equalizer_imag = Equalizer(np.imag(np.array(TxX_corr)), np.imag(np.array(RxX_corr)), 3, [31, 31, 31], 0.2)
     Tx_volterra_real, Rx_volterra_real = equalizer_real.realvolterra()
     Tx_volterra_imag, Rx_volterra_imag = equalizer_imag.realvolterra()
     Tx_real_volterra = Tx_volterra_real + 1j * Tx_volterra_imag
