@@ -45,21 +45,23 @@ class Parameter:
             self.LogTxYQ2=pd.read_table(self.datafolder+'LogTxYQ2.txt',names=['L1'])['L1'].tolist()
 
         else:
-            self.symbolRate = 28.125e9
+            self.symbolRate = symbolRate
             self.sampleRate = 50e9
-            self.pamorder = 4
+            self.pamorder = pamorder
             self.upsamplenum = 9
             self.loadfile = sio.loadmat(datafolder)
             self.Prbsnum = 15
-            self.PRBS = pd.read_table(r'PRBS_TX15.txt', names=['PRBS'])['PRBS'].tolist()
-            self.samplepersymbol = self.sampleRate / self.symbolRate
-            self.resamplenumber = int(self.samplepersymbol * self.upsamplenum)
+            # self.PRBS = pd.read_table(r'PRBS_TX15.txt', names=['PRBS'])['PRBS'].tolist()
+            # self.samplepersymbol = self.sampleRate / self.symbolRate
+            # self.resamplenumber = int(self.samplepersymbol * self.upsamplenum)
             self.RxXI = self.loadfile["Vblock"]["Values"][0][0][0].tolist()
             self.RxXQ = self.loadfile["Vblock"]["Values"][0][1][0].tolist()
             self.RxYI = self.loadfile["Vblock"]["Values"][0][2][0].tolist()
             self.RxYQ = self.loadfile["Vblock"]["Values"][0][3][0].tolist()
             self.Xsoft = self.loadfile["zXSym"]["Values"][0][0][0].tolist()  #tek DSP
             self.Ysoft = self.loadfile["zYSym"]["Values"][0][0][0].tolist()  #tek DSP
+            self.resamplenumber = 16
+
 
             if self.pamorder == 4:
                 self.TxXI = self.loadfile["zXSym"]["SeqRe"][0][0][:].tolist()

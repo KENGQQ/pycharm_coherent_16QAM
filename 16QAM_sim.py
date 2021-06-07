@@ -29,7 +29,7 @@ from Phaserecovery import *
 from CD_compensator import *
 
 address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
-address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
+# address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 folder = '20210519_DATA_84_Bire/100KLW_1GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR34dB_LO00dBm_fiber_PMD_Bire/'
 address += folder
 
@@ -62,7 +62,6 @@ r2 = 3.8     # 3.2
 # r1 = 1.55
 # r2 = 3.2
 ##############################################################################################################################
-
 print("symbolrate = {}Gbit/s\npamorder = {}\nresamplenumber = {}".format(parameter.symbolRate / 1e9, parameter.pamorder, parameter.resamplenumber))
 Tx2Bit = KENG_Tx2Bit(PAM_order=parameter.pamorder)
 downsample_Tx = KENG_downsample(down_coeff=parameter.resamplenumber)
@@ -156,9 +155,6 @@ for eyepos in range(eyestart, eyeend, eyescan):
         Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
         Rx_Y_CMA_stage1 = cma.rx_y_cma[cma.rx_y_cma != 0]
         CMAstage1_tap, CMAstage1_iteration, CMA_cost_X1, CMA_cost_Y1 = tap_1, cma_iter[0], np.round(cma.costfunx[0][-1], 4), np.round(cma.costfuny[0][-1], 4)
-        # downsample_Rx = KENG_downsample(down_coeff=2)
-        # Rx_X_CMA_stage1 = downsample_Rx.return_value(Rx_X_CMA_stage1)
-        # Rx_Y_CMA_stage1 = downsample_Rx.return_value(Rx_Y_CMA_stage1)
         if isplot == True:
             Histogram2D('CMA_X_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
                         Rx_X_CMA_stage1, Imageaddress)
