@@ -4,17 +4,17 @@ import pandas as pd
 
 
 class Parameter:
-    def __init__(self, datafolder, simulation=False):
+    def __init__(self, datafolder, symbolRate, pamorder, simulation=False,):
         if simulation == True:
-            self.symbolRate = 56e9
+            self.symbolRate = symbolRate
             self.sampleRate = 32 * self.symbolRate
             self.upsamplenum = 1
-            self.pamorder = 4
+            self.pamorder = pamorder
             self.Prbsnum = 13
             self.samplepersymbol = self.sampleRate / self.symbolRate
             self.resamplenumber = int(self.samplepersymbol * self.upsamplenum)
             self.datafolder = datafolder
-            time = 700
+            # time = time
             self.RxXI = pd.read_table(self.datafolder + 'RxXI_m.txt', names=['RxXI'])['RxXI'].tolist()
             self.RxXQ = pd.read_table(self.datafolder + 'RxXQ_m.txt', names=['RxXQ'])['RxXQ'].tolist()
             self.RxYI = pd.read_table(self.datafolder + 'RxYI_m.txt', names=['RxYI'])['RxYI'].tolist()
