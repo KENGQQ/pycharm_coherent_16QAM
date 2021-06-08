@@ -5,6 +5,7 @@ import pandas as pd
 
 class Parameter:
     def __init__(self, datafolder, symbolRate, pamorder, simulation=False,):
+        print(5555)
         if simulation == True:
             self.symbolRate = symbolRate
             self.sampleRate = 32 * self.symbolRate
@@ -32,7 +33,7 @@ class Parameter:
             # self.TxYI = np.mat(pd.read_table(self.datafolder + 'TxYI.txt', names=['TxYI'])['TxYI'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
             # self.TxYQ = np.mat(pd.read_table(self.datafolder + 'TxYQ.txt', names=['TxYQ'])['TxYQ'],dtype='complex_').T[int(-time*self.sampleRate/1e9):,0]
 
-            self.datafolder = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
+            self.datafolder = r'C:\Users\keng\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
             self.datafolder = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
             self.datafolder += '20210514_DATA_84/'
             self.LogTxXI1=pd.read_table(self.datafolder+'LogTxXI1.txt',names=['L1'])['L1'].tolist()

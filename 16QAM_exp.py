@@ -28,7 +28,7 @@ from Phaserecovery import *
 
 from CD_compensator import *
 
-address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
+address = r'C:\Users\keng\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 # address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 folder = '20210524_data_exp/'
 address += folder
@@ -40,9 +40,9 @@ parameter = Parameter(address + '16QAM_100km1',symbolRate= 28.125e9,pamorder=4, 
 isplot = 1
 iswrite = 0
 xpart, ypart = 1, 1
-eyestart, eyeend, eyescan = 0, 16, 1
-tap1_start, tap1_end ,tap1_scan= 17, 31, 2 ;    tap2_start, tap2_end, tap2_scan = 15, 17, 2;
-cma_stage= [1, 2]; cma_iter = [10, 30]
+eyestart, eyeend, eyescan = 0, 1, 1
+tap1_start, tap1_end ,tap1_scan= 27, 29, 2 ;    tap2_start, tap2_end, tap2_scan = 15, 17, 2;
+cma_stage= [1, 2]; cma_iter = [5, 30]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -77,6 +77,23 @@ downsample_Rx = KENG_downsample(down_coeff=parameter.resamplenumber)
 # Tx_Signal_X = TxXI[:, 0] + 1j * TxXQ[:, 0]
 # Tx_Signal_Y = TxYI[:, 0] + 1j * TxYQ[:, 0]
 
+# RxX_signal = np.array(parameter.RxXI) + 1j * np.array(parameter.RxXQ)
+# RxY_signal = np.array(parameter.RxYI) + 1j * np.array(parameter.RxYQ)
+#
+# cd_compensator = CD_compensator(RxX_signal, RxY_signal, Gbaud=28.125e9 * parameter.upsamplenum, KM=100)  # 39.62
+# CD_X, CD_Y = cd_compensator.overlap_save(Nfft=len(parameter.RxXQ), NOverlap=128)  # 4096
+# Rx_XI = np.real(CD_X); Rx_XQ = np.imag(CD_X)
+# Rx_YI = np.real(CD_Y); Rx_YQ = np.imag(CD_Y)
+#
+# Rx_XI, Rx_XQ = DataNormalize(signal.resample_poly(Rx_XI, up=parameter.upsamplenum, down=1),
+#                            signal.resample_poly(Rx_XQ, up=parameter.upsamplenum, down=1),
+#                            parameter.pamorder)
+# Rx_YI, Rx_YQ = DataNormalize(signal.resample_poly(Rx_YI, up=parameter.upsamplenum, down=1),
+#                            signal.resample_poly(Rx_YQ, up=parameter.upsamplenum, down=1),
+#                            parameter.pamorder)
+#
+# Histogram2D('Y',Rx_YI[0: 100000] + 1j * Rx_YQ[0: 100000], Imageaddress)
+
 # Rx Upsample
 Rx_XI, Rx_XQ = DataNormalize(signal.resample_poly(parameter.RxXI, up=parameter.upsamplenum, down=1),
                            signal.resample_poly(parameter.RxXQ, up=parameter.upsamplenum, down=1),
@@ -91,10 +108,9 @@ Rx_YI, Rx_YQ = DataNormalize(signal.resample_poly(parameter.RxYI, up=parameter.u
 #     parameter.resamplenumber), np.zeros(parameter.resamplenumber)
 
 cd_compensator = CD_compensator(Rx_XI + 1j * Rx_XQ, Rx_YI + 1j * Rx_YQ, Gbaud=28.125e9 * parameter.upsamplenum, KM=100)  # 39.62
-CD_X, CD_Y = cd_compensator.overlap_save(Nfft=Rx_XI.size, NOverlap=1024)  # 4096
+CD_X, CD_Y = cd_compensator.overlap_save(Nfft=4096, NOverlap=512)  # 4096
 Rx_XI = np.real(CD_X); Rx_XQ = np.imag(CD_X)
 Rx_YI = np.real(CD_Y); Rx_YQ = np.imag(CD_Y)
-Histogram2D('X', Rx_XI[0:100000] + 1j * Rx_XQ[0:100000], Imageaddress)
 
 #Eye position scan2
 for eyepos in range(eyestart,eyeend, eyescan):
@@ -112,10 +128,10 @@ for eyepos in range(eyestart,eyeend, eyescan):
     for tap_1 in range(tap1_start, tap1_end, tap1_scan):
         print("eye : {} ,tap : {}".format(eyepos, tap_1))
 
-        cma = CMA_single(Rx_Signal_X[0:100000], Rx_Signal_Y[0:100000], taps=tap_1, iter=cma_iter[0], mean=0)
+        cma = CMA_single(Rx_Signal_X[0:50000], Rx_Signal_Y[0:50000], taps=tap_1, iter=cma_iter[0], mean=0)
         cma.stepsize_x = cma.stepsizelist[4]; CMAstage1_stepsize_x = cma.stepsize_x;
         cma.stepsize_y = cma.stepsizelist[4]; CMAstage1_stepsize_y = cma.stepsize_y;
-        cma.qam_4_butter_RD(stage=cma_stage[1])
+        cma.qam_4_butter_RD(stage=cma_stage[0])
         # cma.qam_4_side_RD(stage=cma_stage[0])
         Rx_X_CMA_stage1 = cma.rx_x_cma[cma.rx_x_cma != 0]
         Rx_Y_CMA_stage1 = cma.rx_y_cma[cma.rx_y_cma != 0]

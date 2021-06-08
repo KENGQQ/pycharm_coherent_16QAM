@@ -28,8 +28,8 @@ from Phaserecovery import *
 
 from CD_compensator import *
 
-address = r'G:\KENG\GoogleCloud\OptsimData_coherent\QAM16_data/'
-# address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
+address = r'C:\Users\keng\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
+address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 folder = '20210519_DATA_84_Bire/100KLW_1GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR34dB_LO00dBm_fiber_PMD_Bire/'
 address += folder
 
