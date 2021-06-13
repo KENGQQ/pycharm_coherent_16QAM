@@ -10,8 +10,6 @@ class CD_compensator:
 
         self.rx_x = np.array(RxX)
         self.rx_y = np.array(RxY)
-        print(77)
-
         self.datalength = len(RxX)
 
 

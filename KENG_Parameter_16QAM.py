@@ -5,7 +5,6 @@ import pandas as pd
 
 class Parameter:
     def __init__(self, datafolder, symbolRate, pamorder, simulation=False,):
-        print(5555)
         if simulation == True:
             self.symbolRate = symbolRate
             self.sampleRate = 32 * self.symbolRate

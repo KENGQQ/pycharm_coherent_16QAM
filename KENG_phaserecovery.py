@@ -264,7 +264,6 @@ class KENG_phaserecovery:
         Rx_c1c3 = Rx_c1 + Rx_c3
         a = KENG_phaserecovery()
         c1c3_vv = a.forth_QPSK(Rx_c1c3, tap=61)
-        # c1c3_vv = a.forth_QPSK(Rx_c1c3, tap=31)
 
         phase1 = a.phase_adj
 

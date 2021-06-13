@@ -37,12 +37,12 @@ Imageaddress = address + 'image2'
 parameter = Parameter(address, symbolRate=84e9, pamorder=4 ,simulation=True)
 # open_excel(address)
 ##################### control panel #####################
-isplot = 1
+isplot = 0
 iswrite = 0
 xpart, ypart = 1, 1
 eyestart, eyeend, eyescan = 30, 31, 1
 tap1_start, tap1_end ,tap1_scan= 25, 27, 2 ;    tap2_start, tap2_end, tap2_scan = 15, 17, 2;
-cma_stage= [1, 2]; cma_iter = [30, 30]
+cma_stage= [1, 2]; cma_iter = [50, 30]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -163,14 +163,14 @@ for eyepos in range(eyestart, eyeend, eyescan):
         Rx_X_CMA = Rx_X_CMA_stage1
         Rx_Y_CMA = Rx_Y_CMA_stage1
 
-        if iswrite == True:
-            print('----------------write excel----------------')
-            parameter_record = [eyepos,
-                                str([cma.mean, cma.type, cma.overhead, cma.earlystop, cma.stepsizeadjust]), \
-                                str([CMAstage1_tap, CMAstage1_stepsize_x, CMAstage1_stepsize_x, CMAstage1_iteration,
-                                     [CMA_cost_X1, CMA_cost_Y1]])]
-
-            write_excel(address, parameter_record)
+        # if iswrite == True:
+        #     print('----------------write excel----------------')
+        #     parameter_record = [eyepos,
+        #                         str([cma.mean, cma.type, cma.overhead, cma.earlystop, cma.stepsizeadjust]), \
+        #                         str([CMAstage1_tap, CMAstage1_stepsize_x, CMAstage1_stepsize_x, CMAstage1_iteration,
+        #                              [CMA_cost_X1, CMA_cost_Y1]])]
+        #
+        #     write_excel(address, parameter_record)
 
         for tap_2 in range(tap2_start, tap2_end, tap2_scan):
             cma = CMA_single(Rx_X_CMA_stage1, Rx_Y_CMA_stage1, taps=tap_2, iter=cma_iter[1], mean=0)
@@ -197,10 +197,11 @@ for eyepos in range(eyestart, eyeend, eyescan):
             FOcompen_X = ph.FreqOffsetComp(Rx_X_CMA, fsamp=84e9, fres=1e7)
             if isplot == True: Histogram2D('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
 
-            DDPLL_RxX = ph.PLL(FOcompen_X)
-            PLL_BW = ph.bandwidth
-            if isplot == True: Histogram2D('KENG_FreqOffset_X', DDPLL_RxX[0, :], Imageaddress)
+            # DDPLL_RxX = ph.PLL(FOcompen_X)
+            # PLL_BW = ph.bandwidth
+            # if isplot == True: Histogram2D('KENG_FreqOffset_X', DDPLL_RxX[0, :], Imageaddress)
 
+            DDPLL_RxX = FOcompen_X
             phasenoise_RxX = np.reshape(DDPLL_RxX, -1)
             PN_RxX = ph.QAM_6(phasenoise_RxX, c1_radius=r1, c2_radius=r2)
             PN_RxX = PN_RxX[PN_RxX != 0]
@@ -275,18 +276,6 @@ for eyepos in range(eyestart, eyeend, eyescan):
             #                         str([(XI_vec, XQ_vec), (YI_vec, YQ_vec)])]
             #
             # write_excel(address, parameter_record)
-
-
-    # #--------------
-
-    # Correlation = KENG_corr(window_length=7000)
-    # Rx_real, Tx_real = Correlation.calculate_Rx(np.real(Normal_ph_RxX), -TxXI[0:Normal_ph_RxX.size])
-    # Rx_imag, Tx_imag = Correlation.calculate_Rx(-np.imag(Normal_ph_Rx[10000:50000]), TxXQ[10000:50000])
-    # Rx_corr = np.array(Rx_real[0:40000].T) + 1j * np.array(Rx_imag[0:40000].T)
-    # Tx_corr = np.array(Tx_real[0:40000].T) + 1j * np.array(Tx_imag[0:40000].T)
-    # Rx_corr = np.reshape(Rx_corr, (-1))
-    # Tx_corr = np.reshape(Tx_corr, (-1))
-    # Histogram2D('KENG_Corr', Rx_corr)
 
 # ===========================================volterra=========================================================
 if isrealvolterra == 1:

@@ -29,7 +29,7 @@ from Phaserecovery import *
 from CD_compensator import *
 
 address = r'C:\Users\keng\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
-# address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
+address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 folder = '20210524_data_exp/'
 address += folder
 Imageaddress = address + 'image'
@@ -40,9 +40,9 @@ parameter = Parameter(address + '16QAM_100km1',symbolRate= 28.125e9,pamorder=4, 
 isplot = 1
 iswrite = 0
 xpart, ypart = 1, 1
-eyestart, eyeend, eyescan = 0, 1, 1
-tap1_start, tap1_end ,tap1_scan= 27, 29, 2 ;    tap2_start, tap2_end, tap2_scan = 15, 17, 2;
-cma_stage= [1, 2]; cma_iter = [5, 30]
+eyestart, eyeend, eyescan = 0, 16, 1
+tap1_start, tap1_end ,tap1_scan= 21, 29, 2 ;    tap2_start, tap2_end, tap2_scan = 15, 17, 2;
+cma_stage= [1, 2]; cma_iter = [10, 30]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -57,8 +57,8 @@ CMA_cost_X1, CMA_cost_X2 = 0, 0
 CMA_cost_Y1, CMA_cost_Y2 = 0, 0
 XIshift, XQshift, XI_corr, XQ_corr, SNR_X, EVM_X, bercount_X= 0, 0, 0, 0, 0, 0, 0
 YIshift, YQshift, YI_corr, YQ_corr, SNR_Y, EVM_Y, bercount_Y= 0, 0, 0, 0, 0, 0, 0
-r1 = 2.1     # 1.55
-r2 = 3.8     # 3.2
+r1 = 2.1
+r2 = 3.8
 # r1 = 1.55
 # r2 = 3.2
 ##############################################################################################################################
@@ -107,12 +107,12 @@ Rx_YI, Rx_YQ = DataNormalize(signal.resample_poly(parameter.RxYI, up=parameter.u
 # XSNR, XEVM, YSNR, YEVM = np.zeros(parameter.resamplenumber), np.zeros(parameter.resamplenumber), np.zeros(
 #     parameter.resamplenumber), np.zeros(parameter.resamplenumber)
 
-cd_compensator = CD_compensator(Rx_XI + 1j * Rx_XQ, Rx_YI + 1j * Rx_YQ, Gbaud=28.125e9 * parameter.upsamplenum, KM=100)  # 39.62
-CD_X, CD_Y = cd_compensator.overlap_save(Nfft=4096, NOverlap=512)  # 4096
-Rx_XI = np.real(CD_X); Rx_XQ = np.imag(CD_X)
-Rx_YI = np.real(CD_Y); Rx_YQ = np.imag(CD_Y)
+# cd_compensator = CD_compensator(Rx_XI + 1j * Rx_XQ, Rx_YI + 1j * Rx_YQ, Gbaud=28.125e9 * parameter.upsamplenum, KM=100)  # 39.62
+# CD_X, CD_Y = cd_compensator.overlap_save(Nfft=4096, NOverlap=512)  # 4096
+# Rx_XI = np.real(CD_X); Rx_XQ = np.imag(CD_X)
+# Rx_YI = np.real(CD_Y); Rx_YQ = np.imag(CD_Y)
 
-#Eye position scan2
+#Eye position scan
 for eyepos in range(eyestart,eyeend, eyescan):
     down_num = eyepos
     print('eye position = {}'.format(down_num))
@@ -128,7 +128,7 @@ for eyepos in range(eyestart,eyeend, eyescan):
     for tap_1 in range(tap1_start, tap1_end, tap1_scan):
         print("eye : {} ,tap : {}".format(eyepos, tap_1))
 
-        cma = CMA_single(Rx_Signal_X[0:50000], Rx_Signal_Y[0:50000], taps=tap_1, iter=cma_iter[0], mean=0)
+        cma = CMA_single(Rx_Signal_X[0:100000], Rx_Signal_Y[0:100000], taps=tap_1, iter=cma_iter[0], mean=0)
         cma.stepsize_x = cma.stepsizelist[4]; CMAstage1_stepsize_x = cma.stepsize_x;
         cma.stepsize_y = cma.stepsizelist[4]; CMAstage1_stepsize_y = cma.stepsize_y;
         cma.qam_4_butter_RD(stage=cma_stage[0])
