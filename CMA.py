@@ -1478,7 +1478,6 @@ class CMA_single:
         cost_x = np.zeros(self.datalength)
         cost_y = np.zeros(self.datalength)
 
-
         if stage == 2:
             radius = [2 ** 0.5, 10 ** 0.5, 18 ** 0.5]
         elif stage == 1:

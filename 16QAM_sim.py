@@ -29,20 +29,20 @@ from Phaserecovery import *
 from CD_compensator import *
 
 address = r'C:\Users\keng\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
-address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
+# address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eoc08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 folder = '20210519_DATA_84_Bire/100KLW_1GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR34dB_LO00dBm_fiber_PMD_Bire/'
 address += folder
 
-Imageaddress = address + 'image2'
+Imageaddress = address + 'image_t'
 parameter = Parameter(address, symbolRate=84e9, pamorder=4 ,simulation=True)
 # open_excel(address)
 ##################### control panel #####################
-isplot = 0
+isplot = 1
 iswrite = 0
 xpart, ypart = 1, 1
 eyestart, eyeend, eyescan = 30, 31, 1
 tap1_start, tap1_end ,tap1_scan= 25, 27, 2 ;    tap2_start, tap2_end, tap2_scan = 15, 17, 2;
-cma_stage= [1, 2]; cma_iter = [50, 30]
+cma_stage= [1, 2]; cma_iter = [7, 5]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -104,7 +104,6 @@ Tx_Signal_Y = TxYI + 1j * TxYQ
 # TxYQ = downsample_Tx.return_value(Tx_YQ[down_num:])
 # Tx_Signal_X = TxXI + 1j * TxXQ
 # Tx_Signal_Y = TxYI + 1j * TxYQ
-
 for eyepos in range(eyestart, eyeend, eyescan):
     down_num = eyepos
 
@@ -194,7 +193,7 @@ for eyepos in range(eyestart, eyeend, eyescan):
             print('================================')
             print('X part')
             ph = KENG_phaserecovery()
-            FOcompen_X = ph.FreqOffsetComp(Rx_X_CMA, fsamp=84e9, fres=1e7)
+            FOcompen_X = ph.FreqOffsetComp(Rx_X_CMA, fsamp=84e9, fres=1e5)
             if isplot == True: Histogram2D('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
 
             # DDPLL_RxX = ph.PLL(FOcompen_X)
