@@ -451,7 +451,9 @@ class KENG_phaserecovery:
         N = len(rx);
         # raiseSig=rx**m_order
         absFFTSig = abs(np.fft.fft(rx ** m_order, Nfft))
-        # plt.plot(absFFTSig/max(absFFTSig));plt.show()
+        # a = np.linspace(fsamp/2, -fsamp/2, len(absFFTSig))
+        # plt.plot(a, np.fft.fftshift(absFFTSig/max(absFFTSig)));plt.show()
+
         maxIndex = np.argmax(absFFTSig)
         estFreqOffset = fs / Nfft * (maxIndex - 1) / m_order;
 

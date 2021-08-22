@@ -30,19 +30,19 @@ from CD_compensator import *
 
 address = r'C:\Users\keng\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 # address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eoc08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
-folder = '20210519_DATA_84_Bire/100KLW_1GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR34dB_LO00dBm_fiber_PMD_Bire/'
+folder = '20210807_thesis/LW/100KLW_1GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_fiber_PMD_Bire/'
 address += folder
 
-Imageaddress = address + 'image_t'
+Imageaddress = address + 'image3'
 parameter = Parameter(address, symbolRate=84e9, pamorder=4 ,simulation=True)
 # open_excel(address)
 ##################### control panel #####################
 isplot = 1
 iswrite = 0
 xpart, ypart = 1, 1
-eyestart, eyeend, eyescan = 30, 31, 1
-tap1_start, tap1_end ,tap1_scan= 25, 27, 2 ;    tap2_start, tap2_end, tap2_scan = 15, 17, 2;
-cma_stage= [1, 2]; cma_iter = [7, 5]
+eyestart, eyeend, eyescan = 31, 32, 1
+tap1_start, tap1_end ,tap1_scan= 17, 19, 2 ;    tap2_start, tap2_end, tap2_scan = 5, 7, 2;
+cma_stage= [1, 2]; cma_iter = [30, 10]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -126,6 +126,8 @@ for eyepos in range(eyestart, eyeend, eyescan):
     Rx_Signal_Y = RxYI + 1j * RxYQ
     # Histogram2D('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
     # Histogram2D('Rx_Y_origin_{}'.format(eyepos), Rx_Signal_Y, Imageaddress)
+    # Histogram2D_thesis('Rx_X_origin_{}'.format(eyepos), Rx_Signal_X, Imageaddress)
+    # Histogram2D_thesis('Rx_Y_origin_{}'.format(eyepos), Rx_Signal_Y, Imageaddress)
     #########IQimba################
     # Rx_Signal_X = np.reshape(Rx_Signal_X,(1,-1))
     # Rx_Signal_Y = np.reshape(Rx_Signal_Y,(1,-1))
@@ -157,6 +159,8 @@ for eyepos in range(eyestart, eyeend, eyescan):
         if isplot == True:
             Histogram2D('CMA_X_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
                         Rx_X_CMA_stage1, Imageaddress)
+            Histogram2D_thesis('CMA_X_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+                        Rx_X_CMA_stage1, Imageaddress)
             Histogram2D('CMA_Y_{}_stage1 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
                         Rx_Y_CMA_stage1, Imageaddress)
         Rx_X_CMA = Rx_X_CMA_stage1
@@ -179,9 +183,11 @@ for eyepos in range(eyestart, eyeend, eyescan):
             # cma.qam_4_side_RD(stage=cma_stage[1])
             Rx_X_CMA_stage2 = cma.rx_x_cma[cma.rx_x_cma != 0]
             Rx_Y_CMA_stage2 = cma.rx_y_cma[cma.rx_y_cma != 0]
-            CMAstage2_tap, CMAstage2_iteration, CMA_cost_X2, CMA_cost_Y2 = tap_1, cma_iter[1], np.round(cma.costfunx[0][-1], 4), np.round(cma.costfuny[0][-1], 4)
+            CMAstage2_tap, CMAstage2_iteration, CMA_cost_X2, CMA_cost_Y2 = tap_2, cma_iter[1], np.round(cma.costfunx[0][-1], 4), np.round(cma.costfuny[0][-1], 4)
             if isplot == True:
                 Histogram2D('CMA_X_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
+                            Rx_X_CMA_stage2, Imageaddress)
+                Histogram2D_thesis('CMA_X_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
                             Rx_X_CMA_stage2, Imageaddress)
                 Histogram2D('CMA_Y_{}_stage2 taps={} {}'.format(eyepos, cma.cmataps, cma.type),
                             Rx_Y_CMA_stage2, Imageaddress)
@@ -194,7 +200,8 @@ for eyepos in range(eyestart, eyeend, eyescan):
             print('X part')
             ph = KENG_phaserecovery()
             FOcompen_X = ph.FreqOffsetComp(Rx_X_CMA, fsamp=84e9, fres=1e5)
-            if isplot == True: Histogram2D('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
+            # if isplot == True: Histogram2D('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
+            # if isplot == True: Histogram2D_thesis('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
 
             # DDPLL_RxX = ph.PLL(FOcompen_X)
             # PLL_BW = ph.bandwidth
@@ -205,6 +212,7 @@ for eyepos in range(eyestart, eyeend, eyescan):
             PN_RxX = ph.QAM_6(phasenoise_RxX, c1_radius=r1, c2_radius=r2)
             PN_RxX = PN_RxX[PN_RxX != 0]
             if isplot == True: Histogram2D('KENG_PhaseNoise_X', PN_RxX, Imageaddress)
+            # if isplot == True: Histogram2D_thesis('KENG_PhaseNoise_X', PN_RxX, Imageaddress)
 
             Normal_ph_RxX_real, Normal_ph_RxX_imag = DataNormalize(np.real(PN_RxX), np.imag(PN_RxX), parameter.pamorder)
             Normal_ph_RxX = Normal_ph_RxX_real + 1j * Normal_ph_RxX_imag
@@ -223,6 +231,7 @@ for eyepos in range(eyestart, eyeend, eyescan):
             print('BER_X = {} \nSNR_X = {} \nEVM_X = {}'.format(bercount_X, SNR_X, EVM_X))
             # XSNR[eyepos] ,XEVM[eyepos] = SNR_X, EVM_X
             if isplot == True: Histogram2D('KENG_X_beforeVol', RxX_corr, Imageaddress, SNR_X, EVM_X, bercount_X)
+            Histogram2D_thesis('KENG_X_beforeVol', RxX_corr, Imageaddress, SNR_X, EVM_X, bercount_X)
 
         # --------------------------- Y PART------------------------
         if ypart == True:
@@ -291,15 +300,16 @@ if isrealvolterra == 1:
 
     print("SNR_realvol : {}, EVM_realvol : {}".format(snr_realvolterra, evm_realvolterra))
     Histogram2D("RealVolterra", Rx_real_volterra, Imageaddress, snr_realvolterra, evm_realvolterra, realvol_bercount)
+    Histogram2D_thesis("RealVolterra", Rx_real_volterra, Imageaddress, snr_realvolterra, evm_realvolterra, realvol_bercount)
 
 # ------
 if iscomplexvolterra == 1:
-    equalizer_complex = Equalizer(np.array(TxY_corr), np.array(RxY_corr), 3, [31, 25, 25], 0.1)
+    equalizer_complex = Equalizer(np.array(TxX_corr), np.array(RxX_corr), 3, [31, 25, 25], 0.9)
     Tx_complex_volterra, Rx_complex_volterra = equalizer_complex.complexvolterra()
 
     snr_complexvolterra, evm_complexvolterra = SNR(Tx_complex_volterra, Rx_complex_volterra)
     print("SNR_cmplvol : {}, EVM_cmplvol : {}".format(snr_complexvolterra, evm_complexvolterra))
-    # Histogram2D("complexVolterra", Rx_complex_volterra, Imageaddress, snr_complexvolterra, evm_complexvolterra)
+    Histogram2D("complexVolterra", Rx_complex_volterra, Imageaddress, snr_complexvolterra, evm_complexvolterra)
 
     compvol_bercount = BERcount(Tx_complex_volterra, Rx_complex_volterra, parameter.pamorder)
     print("BERcount_cmplvol : {}".format(compvol_bercount))
