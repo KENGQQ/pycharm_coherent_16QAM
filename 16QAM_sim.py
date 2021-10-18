@@ -30,19 +30,19 @@ from CD_compensator import *
 
 address = r'C:\Users\keng\Google 雲端硬碟 (keng.eo08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
 # address = r'C:\Users\kengw\Google 雲端硬碟 (keng.eoc08g@nctu.edu.tw)\OptsimData_coherent\QAM16_data/'
-folder = '20210807_thesis/LW/100KLW_1GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR26dB_LO00dBm_fiber_PMD_Bire/'
+folder = '20210519_DATA_84_Bire/100KLW_1GFO_70GBW_0dBLO_sample32_700ns_CD-1280_EDC0_TxO-2dBm_RxO-08dBm_OSNR34dB_LO00dBm_fiber_PMD_Bire/'
 address += folder
 
-Imageaddress = address + 'image3'
+Imageaddress = address + 'im'
 parameter = Parameter(address, symbolRate=84e9, pamorder=4 ,simulation=True)
 # open_excel(address)
 ##################### control panel #####################
 isplot = 1
 iswrite = 0
 xpart, ypart = 1, 1
-eyestart, eyeend, eyescan = 31, 32, 1
-tap1_start, tap1_end ,tap1_scan= 17, 19, 2 ;    tap2_start, tap2_end, tap2_scan = 5, 7, 2;
-cma_stage= [1, 2]; cma_iter = [30, 10]
+eyestart, eyeend, eyescan = 30, 31, 1
+tap1_start, tap1_end ,tap1_scan= 25, 26, 2 ;    tap2_start, tap2_end, tap2_scan = 5, 7, 2;
+cma_stage= [1, 2]; cma_iter = [5, 10]
 isrealvolterra = 0
 iscomplexvolterra = 0
 
@@ -107,7 +107,7 @@ Tx_Signal_Y = TxYI + 1j * TxYQ
 for eyepos in range(eyestart, eyeend, eyescan):
     down_num = eyepos
 
-    cd_compensator = CD_compensator(Rx_XI + 1j * Rx_XQ, Rx_YI + 1j * Rx_YQ, Gbaud= 84e9 * 32, KM = 80) # 39.62
+    cd_compensator = CD_compensator(Rx_XI + 1j * Rx_XQ, Rx_YI + 1j * Rx_YQ, Gbaud= 84e9 * 32, KM= 80) # 39.62
     CD_X, CD_Y = cd_compensator.overlap_save(Nfft=Rx_XI.size, NOverlap=4096)   #4096
     Rx_XI = np.real(CD_X) ; Rx_XQ = np.imag(CD_X)
     Rx_YI = np.real(CD_Y) ; Rx_YQ = np.imag(CD_Y)
@@ -166,14 +166,14 @@ for eyepos in range(eyestart, eyeend, eyescan):
         Rx_X_CMA = Rx_X_CMA_stage1
         Rx_Y_CMA = Rx_Y_CMA_stage1
 
-        # if iswrite == True:
-        #     print('----------------write excel----------------')
-        #     parameter_record = [eyepos,
-        #                         str([cma.mean, cma.type, cma.overhead, cma.earlystop, cma.stepsizeadjust]), \
-        #                         str([CMAstage1_tap, CMAstage1_stepsize_x, CMAstage1_stepsize_x, CMAstage1_iteration,
-        #                              [CMA_cost_X1, CMA_cost_Y1]])]
-        #
-        #     write_excel(address, parameter_record)
+        if iswrite == True:
+            print('----------------write excel----------------')
+            parameter_record = [eyepos,
+                                str([cma.mean, cma.type, cma.overhead, cma.earlystop, cma.stepsizeadjust]), \
+                                str([CMAstage1_tap, CMAstage1_stepsize_x, CMAstage1_stepsize_x, CMAstage1_iteration,
+                                     [CMA_cost_X1, CMA_cost_Y1]])]
+
+            write_excel(address, parameter_record)
 
         for tap_2 in range(tap2_start, tap2_end, tap2_scan):
             cma = CMA_single(Rx_X_CMA_stage1, Rx_Y_CMA_stage1, taps=tap_2, iter=cma_iter[1], mean=0)
@@ -200,12 +200,12 @@ for eyepos in range(eyestart, eyeend, eyescan):
             print('X part')
             ph = KENG_phaserecovery()
             FOcompen_X = ph.FreqOffsetComp(Rx_X_CMA, fsamp=84e9, fres=1e5)
-            # if isplot == True: Histogram2D('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
+            if isplot == True: Histogram2D('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
             # if isplot == True: Histogram2D_thesis('KENG_FOcompensate_X', FOcompen_X, Imageaddress)
 
-            # DDPLL_RxX = ph.PLL(FOcompen_X)
+            DDPLL_RxX = ph.PLL(FOcompen_X)
             # PLL_BW = ph.bandwidth
-            # if isplot == True: Histogram2D('KENG_FreqOffset_X', DDPLL_RxX[0, :], Imageaddress)
+            if isplot == True: Histogram2D('KENG_FreqOffset_X', DDPLL_RxX[0, :], Imageaddress)
 
             DDPLL_RxX = FOcompen_X
             phasenoise_RxX = np.reshape(DDPLL_RxX, -1)
